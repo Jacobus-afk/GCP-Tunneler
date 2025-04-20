@@ -17,10 +17,20 @@ func main() {
 	//
 	// fmt.Println(projects)
 
-	instances := gcptunneler.ListInstances(ctx, projects[0])
-	for _, instance := range instances {
-		fmt.Println(instance)
-	}
-	fmt.Println("")
-}
+	// for _, project := range projects {
+	// 	fmt.Println(project)
+	// 	instances := gcptunneler.ListInstances(ctx, project)
+	// 	for _, instance := range instances {
+	// 		fmt.Println(instance)
+	// 	}
+	//
+	// }
 
+	projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
+
+	for _, data := range projectDataList {
+		log.Println(data)
+	}
+
+	log.Println("")
+}

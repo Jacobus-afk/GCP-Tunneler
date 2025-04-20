@@ -2,6 +2,8 @@ package gcptunneler
 
 import (
 	"context"
+	"log"
+
 	// "encoding/json"
 	// "fmt"
 	"strings"
@@ -13,9 +15,46 @@ import (
 	"gcp-tunneler/config"
 )
 
+type ProjectData struct {
+	Project   string         `json:"project"`
+	Instances []InstanceData `json:"instances"`
+}
+
 type InstanceData struct {
 	Name string `json:"name"`
 	Zone string `json:"zone"`
+}
+
+func GetInstancesByProject(ctx context.Context, projects []string) []ProjectData {
+	projectDataList := []ProjectData{}
+	numJobs := len(projects)
+
+	jobs := make(chan string, numJobs)
+	results := make(chan ProjectData, numJobs)
+
+	for range 5 {
+		go worker(ctx, jobs, results)
+	}
+
+	for _, project := range projects {
+		jobs <- project
+	}
+	close(jobs)
+
+	for range numJobs {
+		projectData := <-results
+
+		projectDataList = append(projectDataList, projectData)
+	}
+	return projectDataList
+}
+
+func worker(ctx context.Context, jobs <-chan string, results chan<- ProjectData) {
+	for j := range jobs {
+		instanceList := ListInstances(ctx, j)
+		projectData := ProjectData{Project: j, Instances: instanceList}
+		results <- projectData
+	}
 }
 
 func ListInstances(ctx context.Context, projectID string) []InstanceData {
@@ -35,6 +74,11 @@ func ListInstances(ctx context.Context, projectID string) []InstanceData {
 		zone, err := it.Next()
 		if err == iterator.Done {
 			break
+		}
+		if err != nil {
+			// Log and return the partial list we have so far
+			log.Printf("Error accessing instances in project %s: %v", projectID, err)
+			return instanceList
 		}
 
 		if len(zone.Value.Instances) == 0 {
