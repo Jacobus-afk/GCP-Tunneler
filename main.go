@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 
+	"gcp-tunneler/config"
 	gcptunneler "gcp-tunneler/v3"
 )
 
 func main() {
+	config.GetConfig()
+
 	ctx := context.Background()
 
 	projects := gcptunneler.ListProjects(ctx)
