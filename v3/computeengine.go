@@ -5,10 +5,9 @@ import (
 	"gcp-tunneler/config"
 	"strings"
 
-	"github.com/rs/zerolog/log"
-
 	compute "cloud.google.com/go/compute/apiv1"
 	"cloud.google.com/go/compute/apiv1/computepb"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/api/iterator"
 )
 
@@ -84,8 +83,6 @@ func ListInstances(ctx context.Context, projectID string) []InstanceData {
 
 		zoneKey := strings.TrimPrefix(zone.Key, "zones/")
 
-		// fmt.Println(zoneKey)
-
 		for _, instance := range zone.Value.Instances {
 
 			// if checkExclusions(instance) {
@@ -96,11 +93,8 @@ func ListInstances(ctx context.Context, projectID string) []InstanceData {
 				continue
 			}
 
-			// fmt.Println(*instance.Name)
 			instanceList = append(instanceList, InstanceData{*instance.Name, zoneKey})
 		}
-
-		// fmt.Println("----------------------------------------")
 	}
 	return instanceList
 }
@@ -108,7 +102,6 @@ func ListInstances(ctx context.Context, projectID string) []InstanceData {
 func checkInclusions(instance *computepb.Instance) bool {
 	instanceInclusions := config.GetConfig().Inclusions
 	instanceName := *instance.Name
-	// excludeInstance := false
 	for _, pattern := range instanceInclusions {
 		if strings.Contains(instanceName, pattern) {
 			return true
@@ -120,7 +113,6 @@ func checkInclusions(instance *computepb.Instance) bool {
 func checkExclusions(instance *computepb.Instance) bool {
 	instanceExclusions := config.GetConfig().Exclusions
 	instanceName := *instance.Name
-	// excludeInstance := false
 	for _, pattern := range instanceExclusions {
 		if strings.Contains(instanceName, pattern) {
 			return true

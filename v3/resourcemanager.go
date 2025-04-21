@@ -24,10 +24,7 @@ func ListProjects(ctx context.Context) []string {
 			break
 		}
 
-		// fmt.Println(project.ProjectId)
 		projectList = append(projectList, project.ProjectId)
-
 	}
-
 	return projectList
 }
