@@ -10,7 +10,7 @@ import (
 	"os"
 	"os/exec"
 
-	// "github.com/rs/zerolog"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,6 +25,7 @@ func main() {
 	)
 	flag.Parse()
 	// zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 
 	// If instanceFile doesn't exist, or --reload-config flag
 	if _, err := os.Stat(cfg.InstanceFilename); errors.Is(err, os.ErrNotExist) {
@@ -66,6 +67,7 @@ func main() {
 		cfg.InstanceFilename, selectedProject,
 	)
 	log.Print(selectedInstance)
+
 }
 
 func runCommand(cmdName string, cmdArgs ...string) string {
