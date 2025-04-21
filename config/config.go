@@ -1,17 +1,19 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Exclusions []string
-	Inclusions []string
+	Exclusions       []string
+	Inclusions       []string
+	InstanceFilename string
 }
 
 var (
@@ -23,18 +25,20 @@ func GetConfig() *Config {
 	once.Do(func() {
 		err := godotenv.Load()
 		if err != nil {
-			log.Println("Error loading .env file", err)
+			log.Error().Err(err).Msg("Error loading .env file")
 		}
 
-		exclusions_env := os.Getenv("GCPT_EXCLUDED_INSTANCES")
-		inclusions_env := os.Getenv("GCPT_INCLUDED_INSTANCES")
+		exclusionsEnv := os.Getenv("GCPT_EXCLUDED_INSTANCES")
+		inclusionsEnv := os.Getenv("GCPT_INCLUDED_INSTANCES")
+		instanceFilename := os.Getenv("GCPT_INSTANCE_FILENAME")
 
-		inclusions := envSplitter(inclusions_env)
-		exclusions := envSplitter(exclusions_env)
-		
+		inclusions := envSplitter(inclusionsEnv)
+		exclusions := envSplitter(exclusionsEnv)
+
 		instance = &Config{
-			Exclusions: exclusions,
-			Inclusions: inclusions,
+			Exclusions:       exclusions,
+			Inclusions:       inclusions,
+			InstanceFilename: instanceFilename,
 		}
 	})
 	return instance

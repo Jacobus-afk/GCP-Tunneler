@@ -2,17 +2,14 @@ package gcptunneler
 
 import (
 	"context"
-	"log"
-
-	// "encoding/json"
-	// "fmt"
+	"gcp-tunneler/config"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	compute "cloud.google.com/go/compute/apiv1"
 	"cloud.google.com/go/compute/apiv1/computepb"
 	"google.golang.org/api/iterator"
-
-	"gcp-tunneler/config"
 )
 
 type ProjectData struct {
@@ -77,7 +74,7 @@ func ListInstances(ctx context.Context, projectID string) []InstanceData {
 		}
 		if err != nil {
 			// Log and return the partial list we have so far
-			log.Printf("Error accessing instances in project %s: %v", projectID, err)
+			log.Error().Err(err).Msg("Error accessing instances in project " + projectID)
 			return instanceList
 		}
 
