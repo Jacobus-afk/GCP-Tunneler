@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/compute v1.36.1
 	cloud.google.com/go/resourcemanager v1.10.6
 	github.com/joho/godotenv v1.5.1
+	github.com/rs/zerolog v1.34.0
 	google.golang.org/api v0.229.0
 )
 
@@ -24,7 +25,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/rs/zerolog v1.34.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0 // indirect
