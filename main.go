@@ -58,11 +58,11 @@ func main() {
 		// log.Println(string(jsonData))
 	}
 
-	selectedProject := runCommand("./project_select.sh", cfg.InstanceFilename)
+	selectedProject := runCommand("./scripts/project_select.sh", cfg.InstanceFilename)
 	log.Print(selectedProject)
 
 	selectedInstance := runCommand(
-		"./instance_select.sh",
+		"./scripts/instance_select.sh",
 		cfg.InstanceFilename, selectedProject,
 	)
 	log.Print(selectedInstance)
