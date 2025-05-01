@@ -11,9 +11,11 @@ import (
 )
 
 type Config struct {
-	Exclusions       []string
-	Inclusions       []string
-	InstanceFilename string
+	Exclusions                []string
+	Inclusions                []string
+	InstanceFilename          string
+	InstanceGroupDataFilename string
+	BackendDataFilename       string
 }
 
 var (
@@ -30,15 +32,20 @@ func GetConfig() *Config {
 
 		exclusionsEnv := os.Getenv("GCPT_EXCLUDED_INSTANCES")
 		inclusionsEnv := os.Getenv("GCPT_INCLUDED_INSTANCES")
+
 		instanceFilename := os.Getenv("GCPT_INSTANCE_FILENAME")
+		backendDataFilename := os.Getenv("GCPT_BACKEND_DATA_FILENAME")
+		instanceGroupDataFilename := os.Getenv("GCPT_INSTANCE_GROUP_DATA_FILENAME")
 
 		inclusions := envSplitter(inclusionsEnv)
 		exclusions := envSplitter(exclusionsEnv)
 
 		instance = &Config{
-			Exclusions:       exclusions,
-			Inclusions:       inclusions,
-			InstanceFilename: instanceFilename,
+			Exclusions:                exclusions,
+			Inclusions:                inclusions,
+			InstanceFilename:          instanceFilename,
+			InstanceGroupDataFilename: instanceGroupDataFilename,
+			BackendDataFilename:       backendDataFilename,
 		}
 	})
 	return instance

@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	// "encoding/json"
+	"encoding/json"
 	"errors"
 	"flag"
 	"gcp-tunneler/config"
@@ -36,16 +36,16 @@ func main() {
 		ctx := context.Background()
 
 		// gcptunneler.MatchInstancesWithHosts(ctx, "")
-		gcptunneler.MatchInstancesWithHosts(ctx, "")
+		// gcptunneler.MatchInstancesWithHosts(ctx, "")
 
-		// projects := gcptunneler.ListProjects(ctx)
-		// projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
-		// jsonData, err := json.MarshalIndent(projectDataList, "", "  ")
-		// if err != nil {
-		// 	log.Fatal().Err(err).Msg("Error marshaling to JSON: %v")
-		// }
-		//
-		// os.WriteFile(cfg.InstanceFilename, jsonData, 0644)
+		projects := gcptunneler.ListProjects(ctx)
+		projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
+		jsonData, err := json.MarshalIndent(projectDataList, "", "  ")
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error marshaling to JSON: %v")
+		}
+
+		os.WriteFile(cfg.InstanceFilename, jsonData, 0644)
 
 
 		// ------------DEBUG stuff

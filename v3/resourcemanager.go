@@ -5,10 +5,12 @@ import (
 
 	resourcemanager "cloud.google.com/go/resourcemanager/apiv3"
 	resourcemanagerpb "cloud.google.com/go/resourcemanager/apiv3/resourcemanagerpb"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/api/iterator"
 )
 
 func ListProjects(ctx context.Context) []string {
+	log.Info().Msg("Getting list of GCP projects...")
 	projectList := []string{}
 
 	projectsClient, _ := resourcemanager.NewProjectsClient(ctx)
