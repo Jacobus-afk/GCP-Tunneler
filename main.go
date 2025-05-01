@@ -45,6 +45,8 @@ func main() {
 			log.Fatal().Err(err).Msg("Error marshaling to JSON: %v")
 		}
 
+		log.Info().Str("config_file", cfg.InstanceFilename).Msg("Writing configuration to file...")
+
 		os.WriteFile(cfg.InstanceFilename, jsonData, 0644)
 
 
