@@ -8,4 +8,4 @@ Command builder for `gcloud compute` ssh tunnels
 
 - [jq](https://jqlang.org/download/)
 
-- [tmux](https://github.com/tmux/tmux/wiki/Installing) (not yet, but soon)
+- [tmux](https://github.com/tmux/tmux/wiki/Installing)
