@@ -9,6 +9,7 @@ import (
 	gcptunneler "gcp-tunneler/v3"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -49,7 +50,6 @@ func main() {
 
 		os.WriteFile(cfg.InstanceFilename, jsonData, 0644)
 
-
 		// ------------DEBUG stuff
 		// for _, project := range projects {
 		// 	fmt.Println(project)
@@ -70,20 +70,29 @@ func main() {
 	selectedProject := runCommand("./scripts/project_select.sh", cfg.InstanceFilename)
 	log.Print(selectedProject)
 
+	selectedView := runCommand(
+		"./scripts/view_select.sh",
+		cfg.InstanceFilename,
+		selectedProject,
+	)
+	log.Print(selectedView)
+
 	selectedInstance := runCommand(
 		"./scripts/instance_select.sh",
 		cfg.InstanceFilename, selectedProject,
 	)
 	log.Print(selectedInstance)
-
 }
 
 func runCommand(cmdName string, cmdArgs ...string) string {
+	// log.Printf("executing %s %s\n", cmdName, strings.Join(cmdArgs, " "))
+
 	cmd := exec.Command(cmdName, cmdArgs...)
 	out, err := cmd.CombinedOutput()
+
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error running command")
+		log.Error().Err(err).Msg("Error running command")
 	}
 
-	return (string(out))
+	return strings.TrimSpace(string(out))
 }

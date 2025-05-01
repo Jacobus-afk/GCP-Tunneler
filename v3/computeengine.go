@@ -41,6 +41,7 @@ type ZoneData struct {
 }
 
 type BackendData struct {
+	Name           string              `json:"name"`
 	Region         string              `json:"region"`
 	InstanceGroups []InstanceGroupData `json:"instance_groups"`
 }
@@ -166,6 +167,7 @@ func buildBackendServiceMap(
 			}
 			if len(instGroupsList) != 0 {
 				backendDataMap[*service.Name] = BackendData{
+					Name:           *service.Name,
 					Region:         backendService.Key,
 					InstanceGroups: instGroupsList,
 				}
