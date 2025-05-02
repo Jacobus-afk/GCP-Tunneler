@@ -15,6 +15,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type ResourceType int
+
+const (
+	BackendResource ResourceType = iota
+	InstanceResource
+)
+
+func (r ResourceType) String() string {
+	return [...]string{"backends", "instances"}[r]
+}
+
 func main() {
 	cfg := config.GetConfig()
 	var reloadConfig bool
@@ -77,11 +88,20 @@ func main() {
 	)
 	log.Print(selectedView)
 
-	selectedInstance := runCommand(
-		"./scripts/instance_select.sh",
-		cfg.InstanceFilename, selectedProject,
-	)
-	log.Print(selectedInstance)
+	if selectedView == BackendResource.String() {
+		selectedBackend := runCommand(
+			"./scripts/backend_select.sh",
+			cfg.InstanceFilename, selectedProject,
+		)
+		log.Print(selectedBackend)
+
+	} else if selectedView == InstanceResource.String() {
+		selectedInstance := runCommand(
+			"./scripts/instance_select.sh",
+			cfg.InstanceFilename, selectedProject,
+		)
+		log.Print(selectedInstance)
+	}
 }
 
 func runCommand(cmdName string, cmdArgs ...string) string {
@@ -89,7 +109,6 @@ func runCommand(cmdName string, cmdArgs ...string) string {
 
 	cmd := exec.Command(cmdName, cmdArgs...)
 	out, err := cmd.CombinedOutput()
-
 	if err != nil {
 		log.Error().Err(err).Msg("Error running command")
 	}
