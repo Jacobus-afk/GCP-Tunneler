@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 jq --arg a ${2} -r ".[] | select( .project == \$a) | .instances[].name" ${1} | \
-  fzf --tmux 80% --header-first --header $'Choose GCP instance\nSHIFT-TAB for Previous Menu' \
-  --bind "btab:print(**GO_BACK**)+accept"
+  fzf -m --tmux 80% --header-first --header $'Choose GCP instance\nCTRL-H for Previous Menu, TAB/SHIFT-TAB to select/deselect multiple' \
+  --bind "ctrl-h:print(**GO_BACK**)+accept"
 

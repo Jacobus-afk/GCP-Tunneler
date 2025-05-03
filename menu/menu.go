@@ -14,11 +14,10 @@ import (
 
 const (
 	ScriptsDir = "./scripts/"
-	ConfigDir  = "./"
 )
 
 var (
-	ConfigPath = path.Join(ConfigDir, config.GetConfig().InstanceFilename)
+	ConfigPath = config.GetConfig().InstanceFilename
 
 	SelectProjectScript  = path.Join(ScriptsDir, "project_select.sh")
 	SelectViewScript     = path.Join(ScriptsDir, "view_select.sh")
@@ -66,7 +65,7 @@ func (r ResourceType) String() string {
 	return [...]string{"backends", "instances"}[r]
 }
 
-func handleFZFMenu() {
+func HandleFZFMenu() (string){
 	var (
 		nextMenu         MenuSelection
 		responseFZF      string
@@ -122,18 +121,7 @@ func handleFZFMenu() {
 
 	}
 
-	// selectedProject = selectProject()
-	//
-	// selectedView = selectView(selectedProject)
-	//
-	// if selectedView == BackendResource.String() {
-	// 	selectedBackend := selectBackend(selectedProject)
-	// 	log.Print(selectedBackend)
-	//
-	// } else if selectedView == InstanceResource.String() {
-	// 	selectedInstance = selectInstance(selectedProject)
-	// 	log.Print(selectedInstance)
-	// }
+	return responseFZF
 }
 
 func Menu() {
@@ -147,13 +135,10 @@ func Menu() {
 	go func() {
 		sig := <-sigs
 		log.Printf("Received interrupt %s\n", sig)
-		// fmt.Println(sig)
-		// fmt.Println("test")
 		done <- true
 	}()
 
-	// for {
-	handleFZFMenu()
+	HandleFZFMenu()
 
 	select {
 	case <-done:
@@ -161,8 +146,6 @@ func Menu() {
 		return
 	default:
 	}
-	// <- done
-	// }
 }
 
 func selectProject() string {
@@ -202,10 +185,10 @@ func selectInstance(selectedProject string) string {
 
 func runCommand(cmdName string, cmdArgs ...string) string {
 	cmd := exec.Command(cmdName, cmdArgs...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true, // allows signals to propogate to child
-		Pgid:    0,
-	}
+	// cmd.SysProcAttr = &syscall.SysProcAttr{
+	// 	Setpgid: true, // allows signals to propogate to child
+	// 	Pgid:    0,
+	// }
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error().Err(err).Msg("Error running command")

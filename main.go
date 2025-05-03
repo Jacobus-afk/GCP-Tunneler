@@ -7,6 +7,7 @@ import (
 	"flag"
 	"gcp-tunneler/config"
 	"gcp-tunneler/menu"
+	"gcp-tunneler/tunnelbuilder"
 	gcptunneler "gcp-tunneler/v3"
 	"os"
 
@@ -74,5 +75,7 @@ func main() {
 		// log.Println(string(jsonData))
 	}
 
-	menu.Menu()
+	resourceNames := menu.HandleFZFMenu()
+	tunnelbuilder.BuildTunnelCommands(resourceNames)
+
 }
