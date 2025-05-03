@@ -2,8 +2,8 @@ package menu
 
 import (
 	"gcp-tunneler/config"
+	"gcp-tunneler/utils"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path"
 	"strings"
@@ -103,7 +103,7 @@ func HandleFZFMenu() (string){
 			}
 
 		}
-		log.Debug().Msg(responseFZF)
+		// log.Debug().Msg(responseFZF)
 
 		if strings.Contains(responseFZF, "**GO_BACK**") {
 			currentMenu = currentMenu.Previous()
@@ -149,14 +149,14 @@ func Menu() {
 }
 
 func selectProject() string {
-	selectedProject := runCommand(SelectProjectScript, ConfigPath)
+	selectedProject := utils.RunCommand(SelectProjectScript, ConfigPath)
 	// log.Print(selectedProject)
 
 	return selectedProject
 }
 
 func selectView(selectedProject string) string {
-	selectedView := runCommand(
+	selectedView := utils.RunCommand(
 		SelectViewScript,
 		ConfigPath,
 		selectedProject,
@@ -167,7 +167,7 @@ func selectView(selectedProject string) string {
 }
 
 func selectBackend(selectedProject string) string {
-	selectedBackend := runCommand(
+	selectedBackend := utils.RunCommand(
 		SelectBackendScript,
 		ConfigPath, selectedProject,
 	)
@@ -175,7 +175,7 @@ func selectBackend(selectedProject string) string {
 }
 
 func selectInstance(selectedProject string) string {
-	selectedInstance := runCommand(
+	selectedInstance := utils.RunCommand(
 		SelectInstanceScript,
 		ConfigPath, selectedProject,
 	)
@@ -183,16 +183,3 @@ func selectInstance(selectedProject string) string {
 	return selectedInstance
 }
 
-func runCommand(cmdName string, cmdArgs ...string) string {
-	cmd := exec.Command(cmdName, cmdArgs...)
-	// cmd.SysProcAttr = &syscall.SysProcAttr{
-	// 	Setpgid: true, // allows signals to propogate to child
-	// 	Pgid:    0,
-	// }
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Error().Err(err).Msg("Error running command")
-	}
-
-	return strings.TrimSpace(string(out))
-}
