@@ -6,10 +6,9 @@ import (
 	"errors"
 	"flag"
 	"gcp-tunneler/config"
+	"gcp-tunneler/menu"
 	gcptunneler "gcp-tunneler/v3"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -47,9 +46,6 @@ func main() {
 	if reloadConfig {
 		ctx := context.Background()
 
-		// gcptunneler.MatchInstancesWithHosts(ctx, "")
-		// gcptunneler.MatchInstancesWithHosts(ctx, "")
-
 		projects := gcptunneler.ListProjects(ctx)
 		projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
 		jsonData, err := json.MarshalIndent(projectDataList, "", "  ")
@@ -78,40 +74,5 @@ func main() {
 		// log.Println(string(jsonData))
 	}
 
-	selectedProject := runCommand("./scripts/project_select.sh", cfg.InstanceFilename)
-	log.Print(selectedProject)
-
-	selectedView := runCommand(
-		"./scripts/view_select.sh",
-		cfg.InstanceFilename,
-		selectedProject,
-	)
-	log.Print(selectedView)
-
-	if selectedView == BackendResource.String() {
-		selectedBackend := runCommand(
-			"./scripts/backend_select.sh",
-			cfg.InstanceFilename, selectedProject,
-		)
-		log.Print(selectedBackend)
-
-	} else if selectedView == InstanceResource.String() {
-		selectedInstance := runCommand(
-			"./scripts/instance_select.sh",
-			cfg.InstanceFilename, selectedProject,
-		)
-		log.Print(selectedInstance)
-	}
-}
-
-func runCommand(cmdName string, cmdArgs ...string) string {
-	// log.Printf("executing %s %s\n", cmdName, strings.Join(cmdArgs, " "))
-
-	cmd := exec.Command(cmdName, cmdArgs...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Error().Err(err).Msg("Error running command")
-	}
-
-	return strings.TrimSpace(string(out))
+	menu.Menu()
 }
