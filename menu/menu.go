@@ -2,14 +2,15 @@ package menu
 
 import (
 	"gcp-tunneler/config"
+	"os"
 	"os/exec"
+	"os/signal"
 	"path"
 	"strings"
+	"syscall"
 
 	"github.com/rs/zerolog/log"
 )
-
-type ResourceType int
 
 const (
 	ScriptsDir = "./scripts/"
@@ -25,6 +26,37 @@ var (
 	SelectInstanceScript = path.Join(ScriptsDir, "instance_select.sh")
 )
 
+type MenuSelection int
+
+const (
+	ProjectMenu MenuSelection = iota
+	ViewMenu
+	ResourcesMenu
+	menuCount
+)
+
+func (m MenuSelection) Previous() MenuSelection {
+	currentSel := int(m)
+
+	if currentSel-1 < 0 {
+		return MenuSelection(currentSel)
+	}
+
+	return MenuSelection(currentSel - 1)
+}
+
+func (m MenuSelection) Next() MenuSelection {
+	currentSel := int(m)
+
+	if (currentSel + 1) >= int(menuCount) {
+		return MenuSelection(currentSel)
+	}
+
+	return MenuSelection(currentSel + 1)
+}
+
+type ResourceType int
+
 const (
 	BackendResource ResourceType = iota
 	InstanceResource
@@ -34,24 +66,108 @@ func (r ResourceType) String() string {
 	return [...]string{"backends", "instances"}[r]
 }
 
-func Menu() {
-	selectedProject := selectProject()
+func handleFZFMenu() {
+	var (
+		nextMenu         MenuSelection
+		responseFZF      string
+		selectedProject  string
+		selectedView     string
+		selectedInstance string
+		selectedBackend  string
+	)
 
-	selectedView := selectView(selectedProject)
+	currentMenu := ProjectMenu
 
-	if selectedView == BackendResource.String() {
-		selectedBackend := selectBackend(selectedProject)
-		log.Print(selectedBackend)
+	for {
+		switch currentMenu {
 
-	} else if selectedView == InstanceResource.String() {
-		selectedInstance := selectInstance(selectedProject)
-		log.Print(selectedInstance)
+		case ProjectMenu:
+			selectedView = ""
+			selectedInstance = ""
+			selectedBackend = ""
+			responseFZF = selectProject()
+			selectedProject = responseFZF
+
+		case ViewMenu:
+			responseFZF = selectView(selectedProject)
+			selectedView = responseFZF
+
+		case ResourcesMenu:
+			if selectedView == BackendResource.String() {
+				responseFZF = selectBackend(selectedProject)
+				selectedBackend = responseFZF
+				_ = selectedBackend
+			} else if selectedView == InstanceResource.String() {
+				responseFZF = selectInstance(selectedProject)
+				selectedInstance = responseFZF
+				_ = selectedInstance
+			}
+
+		}
+		log.Debug().Msg(responseFZF)
+
+		if strings.Contains(responseFZF, "**GO_BACK**") {
+			currentMenu = currentMenu.Previous()
+			continue
+		}
+
+		nextMenu = currentMenu.Next()
+
+		// we've reached the end of menus
+		if nextMenu == currentMenu {
+			break
+		}
+
+		currentMenu = nextMenu
+
 	}
+
+	// selectedProject = selectProject()
+	//
+	// selectedView = selectView(selectedProject)
+	//
+	// if selectedView == BackendResource.String() {
+	// 	selectedBackend := selectBackend(selectedProject)
+	// 	log.Print(selectedBackend)
+	//
+	// } else if selectedView == InstanceResource.String() {
+	// 	selectedInstance = selectInstance(selectedProject)
+	// 	log.Print(selectedInstance)
+	// }
+}
+
+func Menu() {
+	sigs := make(chan os.Signal, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	defer signal.Stop(sigs)
+
+	done := make(chan bool, 1)
+
+	go func() {
+		sig := <-sigs
+		log.Printf("Received interrupt %s\n", sig)
+		// fmt.Println(sig)
+		// fmt.Println("test")
+		done <- true
+	}()
+
+	// for {
+	handleFZFMenu()
+
+	select {
+	case <-done:
+		log.Info().Msg("Exiting..")
+		return
+	default:
+	}
+	// <- done
+	// }
 }
 
 func selectProject() string {
 	selectedProject := runCommand(SelectProjectScript, ConfigPath)
-	log.Print(selectedProject)
+	// log.Print(selectedProject)
 
 	return selectedProject
 }
@@ -62,7 +178,7 @@ func selectView(selectedProject string) string {
 		ConfigPath,
 		selectedProject,
 	)
-	log.Print(selectedView)
+	// log.Print(selectedView)
 
 	return selectedView
 }
@@ -86,6 +202,10 @@ func selectInstance(selectedProject string) string {
 
 func runCommand(cmdName string, cmdArgs ...string) string {
 	cmd := exec.Command(cmdName, cmdArgs...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true, // allows signals to propogate to child
+		Pgid:    0,
+	}
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error().Err(err).Msg("Error running command")
