@@ -7,7 +7,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func RunCommand(cmdName string, cmdArgs ...string) string {
+func CommandRun(commandName string, cmdArgs ...string) error {
+	cmd := exec.Command(commandName, cmdArgs...)
+	return cmd.Run()
+}
+
+func CommandCombinedOutput(cmdName string, cmdArgs ...string) string {
 	cmd := exec.Command(cmdName, cmdArgs...)
 	// cmd.SysProcAttr = &syscall.SysProcAttr{
 	// 	Setpgid: true, // allows signals to propogate to child

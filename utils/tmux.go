@@ -2,10 +2,14 @@ package utils
 
 import "fmt"
 
-func CreateTMUXTunnelSession(gcloudCMD []string, instanceName string) {
-	RunCommand("tmux", "new", "-d", "-s", "GCPTunnel")
+func CreateTMUXSSHSession() {
 
-	RunCommand(
+}
+
+func CreateTMUXTunnelSession(gcloudCMD string, instanceName string) {
+	CommandRun("tmux", "new", "-d", "-s", "GCPTunnel")
+
+	CommandRun(
 		"tmux",
 		"new-window",
 		"-t",

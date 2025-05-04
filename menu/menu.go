@@ -149,14 +149,14 @@ func Menu() {
 }
 
 func selectProject() string {
-	selectedProject := utils.RunCommand(SelectProjectScript, ConfigPath)
+	selectedProject := utils.CommandCombinedOutput(SelectProjectScript, ConfigPath)
 	// log.Print(selectedProject)
 
 	return selectedProject
 }
 
 func selectView(selectedProject string) string {
-	selectedView := utils.RunCommand(
+	selectedView := utils.CommandCombinedOutput(
 		SelectViewScript,
 		ConfigPath,
 		selectedProject,
@@ -167,7 +167,7 @@ func selectView(selectedProject string) string {
 }
 
 func selectBackend(selectedProject string) string {
-	selectedBackend := utils.RunCommand(
+	selectedBackend := utils.CommandCombinedOutput(
 		SelectBackendScript,
 		ConfigPath, selectedProject,
 	)
@@ -175,7 +175,7 @@ func selectBackend(selectedProject string) string {
 }
 
 func selectInstance(selectedProject string) string {
-	selectedInstance := utils.RunCommand(
+	selectedInstance := utils.CommandCombinedOutput(
 		SelectInstanceScript,
 		ConfigPath, selectedProject,
 	)
