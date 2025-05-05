@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -16,6 +17,7 @@ type Config struct {
 	InstanceFilename          string
 	InstanceGroupDataFilename string
 	BackendDataFilename       string
+	SSHTimeout                int
 }
 
 var (
@@ -36,6 +38,11 @@ func GetConfig() *Config {
 		instanceFilename := os.Getenv("GCPT_INSTANCE_FILENAME")
 		backendDataFilename := os.Getenv("GCPT_BACKEND_DATA_FILENAME")
 		instanceGroupDataFilename := os.Getenv("GCPT_INSTANCE_GROUP_DATA_FILENAME")
+		sshTimeout, err := strconv.Atoi(os.Getenv("GCPT_SSH_TIMEOUT"))
+		if err != nil {
+			log.Error().Err(err).Msg("invalid timeout value. reverting to default")
+			sshTimeout = 12
+		}
 
 		inclusions := envSplitter(inclusionsEnv)
 		exclusions := envSplitter(exclusionsEnv)
@@ -46,6 +53,7 @@ func GetConfig() *Config {
 			InstanceFilename:          instanceFilename,
 			InstanceGroupDataFilename: instanceGroupDataFilename,
 			BackendDataFilename:       backendDataFilename,
+			SSHTimeout:                sshTimeout,
 		}
 	})
 	return instance

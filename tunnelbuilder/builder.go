@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gcp-tunneler/utils"
+	"os/user"
 	"strconv"
 	"strings"
 
@@ -18,7 +19,7 @@ type Instance struct {
 }
 
 func BuildTunnelCommands(resourceNames string) {
-	sessionNames  := map[string]bool{}
+	sessionNames := map[string]bool{}
 
 	instanceList := []Instance{}
 	resourceList := strings.SplitSeq(resourceNames, "\n")
@@ -41,30 +42,27 @@ func BuildTunnelCommands(resourceNames string) {
 	for _, instance := range instanceList {
 		log.Info().Interface("instance", instance).Msg("")
 
-		gcloudCMD, freePort := buildGCloudCommand(instance)
-		_ = freePort
+		freePort, err := utils.GetFreePort()
+		if err != nil {
+			log.Error().Err(err).Msg("couldn't get free port")
+			return
+		}
+
+		currentUser, err := user.Current()
+		if err != nil {
+			log.Error().Err(err).Msg("couldn't get current user")
+		}
+
+		gcloudCMD := buildGCloudCommand(instance, freePort)
 
 		utils.CreateTMUXTunnelSession(gcloudCMD, instance.Name)
+
+		utils.WaitForSSHSession(currentUser.Username, freePort)
+
 	}
 }
 
-func buildGCloudCommand(instance Instance) (gcloudCMD string, freePort int) {
-	freePort, err := utils.GetFreePort()
-	if err != nil {
-		log.Error().Err(err).Msg("couldn't get free port")
-		return
-	}
-
-	// gcloudCMD = []string{
-	// 	"gcloud",
-	// 	"compute",
-	// 	"start-iap-tunnel",
-	// 	instance.Name,
-	// 	"22",
-	// 	"--local-host-port=localhost:" + strconv.Itoa(freePort),
-	// 	"--project=" + instance.Project,
-	// 	"--zone=" + instance.Zone,
-	// }
+func buildGCloudCommand(instance Instance, freePort int) (gcloudCMD string) {
 	gcloudCMD = fmt.Sprintf(
 		"gcloud compute start-iap-tunnel %s 22 --local-host-port=localhost:%s --project=%s --zone=%s",
 		instance.Name,
@@ -73,7 +71,7 @@ func buildGCloudCommand(instance Instance) (gcloudCMD string, freePort int) {
 		instance.Zone,
 	)
 
-	return gcloudCMD, freePort
+	return gcloudCMD
 }
 
 func getTunnelDetails(resourceName string) Instance {
