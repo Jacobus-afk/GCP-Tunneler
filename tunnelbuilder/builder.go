@@ -18,13 +18,7 @@ type Instance struct {
 	InstanceGroup string `json:"instance_group"`
 }
 
-type SSHConnection struct {
-	Connected bool
-	Port      string
-	Username  string
-}
-
-func goWorker(jobs chan [2]string, results chan SSHConnection) {
+func goWorker(jobs chan [2]string, results chan utils.SSHConnection) {
 	for {
 		j, more := <-jobs
 		if !more {
@@ -32,7 +26,7 @@ func goWorker(jobs chan [2]string, results chan SSHConnection) {
 		}
 		resp := utils.WaitForSSHSession(j[0], j[1])
 
-		sshConnection := SSHConnection{Connected: resp, Port: j[1], Username: j[0]}
+		sshConnection := utils.SSHConnection{Connected: resp, Port: j[1], Username: j[0]}
 
 		results <- sshConnection
 	}
@@ -42,8 +36,7 @@ func BuildTunnelAndSSH(resourceNames string) {
 	resourceList := strings.Split(resourceNames, "\n")
 	numJobs := len(resourceList)
 	jobs := make(chan [2]string, numJobs)
-	results := make(chan SSHConnection, numJobs)
-
+	results := make(chan utils.SSHConnection, numJobs)
 
 	instanceList, sessionNames := buildTunnelCommands(resourceList)
 
@@ -54,7 +47,7 @@ func BuildTunnelAndSSH(resourceNames string) {
 	log.Debug().Msg(sessionName)
 
 	_ = sessionName
-	
+
 	for range numJobs {
 		go goWorker(jobs, results)
 	}
@@ -63,7 +56,16 @@ func BuildTunnelAndSSH(resourceNames string) {
 
 	close(jobs)
 
+	for range numJobs {
+		sshConnection := <-results
+		log.Info().Interface("SSH Connection", sshConnection).Msg("")
+		err := utils.CreateTMUXSSHSession(sshConnection, sessionName)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to create TMUX SSH session")
+		}
+	}
 
+	utils.ArrangeLayout(sessionName)
 }
 
 func createTunnels(instanceList []Instance, jobs chan [2]string) {
@@ -93,11 +95,6 @@ func buildTunnelCommands(resourceList []string) ([]Instance, map[string]bool) {
 	sessionNames := map[string]bool{}
 
 	instanceList := []Instance{}
-	// resourceList := strings.Split(resourceNames, "\n")
-
-	// numJobs := len(resourceList)
-	// jobs := make(chan [2]string, numJobs)
-	// results := make(chan SSHConnection, numJobs)
 
 	for _, entry := range resourceList {
 		// log.Debug().Msg(entry)
@@ -107,47 +104,6 @@ func buildTunnelCommands(resourceList []string) ([]Instance, map[string]bool) {
 	}
 
 	return instanceList, sessionNames
-
-	// sessionName, err := utils.PromptForSessionName(sessionNames)
-	// if err != nil {
-	// 	log.Fatal().Err(err).Msg("halting build tunnel process")
-	// }
-	// log.Debug().Msg(sessionName)
-	//
-	// _ = sessionName
-
-	// for range numJobs {
-	// 	go goWorker(jobs, results)
-	// }
-
-	// for _, instance := range instanceList {
-	// 	log.Info().Interface("instance", instance).Msg("")
-	//
-	// 	freePort, err := utils.GetFreePort()
-	// 	if err != nil {
-	// 		log.Error().Err(err).Msg("couldn't get free port")
-	// 		return
-	// 	}
-	//
-	// 	currentUser, err := user.Current()
-	// 	if err != nil {
-	// 		log.Error().Err(err).Msg("couldn't get current user")
-	// 	}
-	//
-	// 	gcloudCMD := buildGCloudCommand(instance, freePort)
-	//
-	// 	utils.CreateTMUXTunnelSession(gcloudCMD, instance.Name)
-	//
-	// 	jobs <- [2]string{currentUser.Username, strconv.Itoa(freePort)}
-	// }
-	// close(jobs)
-
-	for range numJobs {
-		sshConnection := <-results
-
-		log.Info().Interface("SSH Connection", sshConnection).Msg("")
-
-	}
 }
 
 func buildGCloudCommand(instance Instance, freePort int) (gcloudCMD string) {
