@@ -18,13 +18,38 @@ type Instance struct {
 	InstanceGroup string `json:"instance_group"`
 }
 
+type SSHConnection struct {
+	Connected bool
+	Port      string
+	Username  string
+}
+
 func BuildTunnelCommands(resourceNames string) {
 	sessionNames := map[string]bool{}
 
 	instanceList := []Instance{}
-	resourceList := strings.SplitSeq(resourceNames, "\n")
+	resourceList := strings.Split(resourceNames, "\n")
 
-	for entry := range resourceList {
+	numJobs := len(resourceList)
+	log.Debug().Msgf("length of resourcelist: %d", numJobs)
+	jobs := make(chan [2]string, numJobs)
+	results := make(chan SSHConnection, numJobs)
+
+	go func() {
+		for {
+			j, more := <-jobs
+			if !more {
+				return
+			}
+			resp := utils.WaitForSSHSession(j[0], j[1])
+
+			sshConnection := SSHConnection{Connected: resp, Port: j[1], Username: j[0]}
+
+			results <- sshConnection
+		}
+	}()
+
+	for _, entry := range resourceList {
 		// log.Debug().Msg(entry)
 		instance := getTunnelDetails(entry)
 		instanceList = append(instanceList, instance)
@@ -57,7 +82,14 @@ func BuildTunnelCommands(resourceNames string) {
 
 		utils.CreateTMUXTunnelSession(gcloudCMD, instance.Name)
 
-		utils.WaitForSSHSession(currentUser.Username, freePort)
+		jobs <- [2]string{currentUser.Username, strconv.Itoa(freePort)}
+	}
+	close(jobs)
+
+	for range numJobs{
+		sshConnection:= <-results
+
+		log.Info().Interface("SSH Connection", sshConnection).Msg("")
 
 	}
 }

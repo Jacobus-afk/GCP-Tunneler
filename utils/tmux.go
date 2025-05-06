@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"gcp-tunneler/config"
-	"strconv"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -27,7 +26,7 @@ func CreateTMUXTunnelSession(gcloudCMD string, instanceName string) {
 	)
 }
 
-func WaitForSSHSession(currentUser string, freePort int) bool {
+func WaitForSSHSession(currentUser string, freePort string) bool {
 	timeoutVal := config.GetConfig().SSHTimeout
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutVal)*time.Second)
 	defer cancel()
@@ -50,14 +49,16 @@ func WaitForSSHSession(currentUser string, freePort int) bool {
 				"UserKnownHostsFile=/dev/null",
 				currentUser+"@localhost",
 				"-p",
-				strconv.Itoa(freePort),
+				freePort,
 				"true",
 			)
 			if err == nil {
 				log.Debug().Msg("established ssh connection")
 				return true
 			}
-			log.Debug().Err(err).Msgf("SSH connection on %s@localhost:%d attempt failed, retrying..", currentUser, freePort)
+			log.Debug().
+				Err(err).
+				Msgf("SSH connection on %s@localhost:%s attempt failed, retrying..", currentUser, freePort)
 		}
 	}
 }
