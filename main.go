@@ -76,6 +76,6 @@ func main() {
 	}
 
 	resourceNames := menu.HandleFZFMenu()
-	tunnelbuilder.BuildTunnelCommands(resourceNames)
+	tunnelbuilder.BuildTunnelAndSSH(resourceNames)
 
 }
