@@ -23,3 +23,5 @@ go.work.sum
 instances.json
 
 tmux-client-*.log
+# Added by goreleaser init:
+dist/
