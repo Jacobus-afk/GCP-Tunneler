@@ -1,8 +1,8 @@
 package menu
 
 import (
-	"gcp-tunneler/config"
-	"gcp-tunneler/utils"
+	"gcp-tunneler/internal/config"
+	"gcp-tunneler/internal/utils"
 	"os"
 	"os/signal"
 	"path"
@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ScriptsDir = "./scripts/"
+	ScriptsDir = "./internal/scripts/"
 )
 
 var (

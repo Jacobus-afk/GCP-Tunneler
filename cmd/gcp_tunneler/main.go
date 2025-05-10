@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
-	"gcp-tunneler/config"
-	"gcp-tunneler/menu"
-	"gcp-tunneler/tunnelbuilder"
-	gcptunneler "gcp-tunneler/v3"
+
+	// "gcp-tunneler/config"
+	"gcp-tunneler/internal/config"
+	"gcp-tunneler/internal/menu"
+	"gcp-tunneler/internal/tunnelbuilder"
+	gcptunneler "gcp-tunneler/internal/v3"
 	"os"
 
 	"github.com/rs/zerolog"

@@ -6,7 +6,7 @@ import (
 	"path"
 
 	// "fmt"
-	"gcp-tunneler/config"
+	"gcp-tunneler/internal/config"
 	"strings"
 
 	compute "cloud.google.com/go/compute/apiv1"
