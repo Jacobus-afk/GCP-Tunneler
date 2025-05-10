@@ -120,7 +120,7 @@ func buildGCloudCommand(instance Instance, freePort int) (gcloudCMD string) {
 
 func getTunnelDetails(resourceName string) Instance {
 	var instance Instance
-	rawJSON := utils.CommandCombinedOutput("./internal/scripts/resource_builder.sh", resourceName)
+	rawJSON := utils.CommandCombinedOutput("./scripts/resource_builder.sh", resourceName)
 
 	err := json.Unmarshal([]byte(rawJSON), &instance)
 	if err != nil {

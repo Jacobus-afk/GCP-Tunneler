@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ScriptsDir = "./internal/scripts/"
+	ScriptsDir = "./scripts/"
 )
 
 var (
