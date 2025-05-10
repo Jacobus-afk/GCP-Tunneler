@@ -10,7 +10,7 @@ import (
 	"gcp-tunneler/internal/config"
 	"gcp-tunneler/internal/menu"
 	"gcp-tunneler/internal/tunnelbuilder"
-	gcptunneler "gcp-tunneler/internal/v3"
+	gcptunneler "gcp-tunneler/internal/gcp_api"
 	"os"
 
 	"github.com/rs/zerolog"
