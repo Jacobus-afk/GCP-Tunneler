@@ -3,7 +3,7 @@ package utils
 import (
 	"context"
 	"fmt"
-	"gcp-tunneler/config"
+	"gcp-tunneler/internal/config"
 	"time"
 
 	"github.com/rs/zerolog/log"
