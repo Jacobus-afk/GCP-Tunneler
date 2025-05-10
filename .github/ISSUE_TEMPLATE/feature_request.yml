@@ -1,6 +1,6 @@
 name: Feature request
 description: Request an enhancement for this project
-label: 'enhancement'
+labels: 'enhancement'
 body:
 
   - type: markdown
