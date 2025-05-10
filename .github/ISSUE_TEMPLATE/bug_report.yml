@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         *Before reporting:*
-        - Search [existing issues](https://github.com/Jacobus-afk/GCP-Tunneler/issues?q=is%3Aissue+is%3Aopen+label%3Abug) (including [closed](https://github.com/Jacobus-afk/GCP-Tunneler/issues?q=is%3Aissue+is%3Aclosed+label%3Abug%2Cbug-crash))
+        - Search [existing issues](https://github.com/Jacobus-afk/GCP-Tunneler/issues?q=is%3Aissue+is%3Aopen+label%3Abug) (including [closed](https://github.com/Jacobus-afk/GCP-Tunneler/issues?q=is%3Aissue+is%3Aclosed+label%3Abug))
 
   - type: textarea
     attributes:
