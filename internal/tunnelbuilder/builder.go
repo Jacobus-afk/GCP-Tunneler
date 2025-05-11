@@ -34,9 +34,6 @@ func goWorker(jobs chan [2]string, results chan utils.SSHConnection) {
 
 func BuildTunnelAndSSH(resourcesInput string) (string, error) {
 	resourceList := strings.Split(resourcesInput, "\n")
-	// numJobs := len(resourceList)
-	// jobs := make(chan [2]string, numJobs)
-	// results := make(chan utils.SSHConnection, numJobs)
 
 	instanceList, possibleSessionNames := buildTunnelCommands(resourceList)
 
@@ -44,25 +41,6 @@ func BuildTunnelAndSSH(resourcesInput string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get session name: %w", err)
 	}
-
-	// for range numJobs {
-	// 	go goWorker(jobs, results)
-	// }
-	//
-	// createTunnels(instanceList, jobs)
-	//
-	// close(jobs)
-	//
-	// for range numJobs {
-	// 	sshConnection := <-results
-	// 	log.Info().Interface("SSH Connection", sshConnection).Msg("")
-	// 	err := utils.CreateTMUXSSHSession(sshConnection, sessionName)
-	// 	if err != nil {
-	// 		return "", fmt.Errorf("failed to create TMUX SSH session: %w", err)
-	// 	}
-	// }
-	//
-	// utils.ArrangeLayout(sessionName)
 
 	connections := createConcurrentTunnelConnections(instanceList)
 
