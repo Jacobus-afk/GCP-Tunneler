@@ -1,3 +1,10 @@
+# [0.2.0](https://github.com/Jacobus-afk/GCP-Tunneler/compare/v0.1.2...v0.2.0) (2025-05-11)
+
+
+### Features
+
+* **github-action:** create dependabot.yml ([#20](https://github.com/Jacobus-afk/GCP-Tunneler/issues/20)) ([7ed4cc7](https://github.com/Jacobus-afk/GCP-Tunneler/commit/7ed4cc76914a1949b50c021c2a421f4a3e0b803f)), closes [#11](https://github.com/Jacobus-afk/GCP-Tunneler/issues/11)
+
 ## [0.1.2](https://github.com/Jacobus-afk/GCP-Tunneler/compare/v0.1.1...v0.1.2) (2025-05-11)
 
 
