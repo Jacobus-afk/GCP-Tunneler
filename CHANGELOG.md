@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/Jacobus-afk/GCP-Tunneler/compare/v0.2.0...v0.2.1) (2025-05-11)
+
+
+### Bug Fixes
+
+* **deps:** bump the go-dependencies group with 2 updates ([#21](https://github.com/Jacobus-afk/GCP-Tunneler/issues/21)) ([40697ba](https://github.com/Jacobus-afk/GCP-Tunneler/commit/40697ba6b1a87ed2b591e64d0f87d161c69e31b6))
+
 # [0.2.0](https://github.com/Jacobus-afk/GCP-Tunneler/compare/v0.1.2...v0.2.0) (2025-05-11)
 
 
