@@ -1,33 +1,44 @@
-name: goreleaser
+name: semantic-release
 
 on:
   push:
-    # run only against tags
-    tags:
-      - "*"
+    branches:
+      - master
 
 permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
-          distribution: goreleaser
-          # 'latest', 'nightly', or a semver
-          version: "~> v2"
-          args: release --clean
+          node-version: 'lts/*'
+
+      - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx -p @semantic-release/changelog -p @semantic-release/exec -p @semantic-release/git semantic-release
+          
+      # - name: Run GoReleaser
+      #   uses: goreleaser/goreleaser-action@v6
+      #   with:
+      #     # either 'goreleaser' (default) or 'goreleaser-pro'
+      #     distribution: goreleaser
+      #     # 'latest', 'nightly', or a semver
+      #     version: "~> v2"
+      #     args: release --clean
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
