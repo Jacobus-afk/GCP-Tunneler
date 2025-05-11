@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"gcp-tunneler/internal/config"
+	"os"
+	"os/exec"
+	"syscall"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -109,4 +112,22 @@ func WaitForSSHSession(currentUser string, freePort string) bool {
 				Msgf("SSH connection on %s@localhost:%s attempt failed, retrying..", currentUser, freePort)
 		}
 	}
+}
+
+func SwitchToCreatedSession(sessionName string) error  {
+	binary, lookErr := exec.LookPath("tmux")
+	if lookErr != nil {
+		return fmt.Errorf("could not find path to tmux: %w", lookErr)
+	}
+
+	args := []string{"tmux", "switch", "-t", sessionName}
+
+	env := os.Environ()
+
+	execErr := syscall.Exec(binary, args, env)
+	if execErr != nil {
+		return fmt.Errorf("could not run tmux switch: %w", execErr)
+	}
+	
+	return nil
 }

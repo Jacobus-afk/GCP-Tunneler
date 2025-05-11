@@ -32,21 +32,29 @@ func goWorker(jobs chan [2]string, results chan utils.SSHConnection) {
 	}
 }
 
-func BuildTunnelAndSSH(resourceNames string) {
-	resourceList := strings.Split(resourceNames, "\n")
-	numJobs := len(resourceList)
+func BuildTunnelAndSSH(resourcesInput string) (string, error) {
+	resourceList := strings.Split(resourcesInput, "\n")
+
+	instanceList, possibleSessionNames := buildTunnelCommands(resourceList)
+
+	sessionName, err := utils.PromptForSessionName(possibleSessionNames)
+	if err != nil {
+		return "", fmt.Errorf("failed to get session name: %w", err)
+	}
+
+	connections := createConcurrentTunnelConnections(instanceList)
+
+	if err := setupTMUXEnvironment(connections, sessionName); err != nil {
+		return "", fmt.Errorf("failed to setup TMUX Environment: %w", err)
+	}
+
+	return sessionName, nil
+}
+
+func createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConnection {
+	numJobs := len(instanceList)
 	jobs := make(chan [2]string, numJobs)
 	results := make(chan utils.SSHConnection, numJobs)
-
-	instanceList, sessionNames := buildTunnelCommands(resourceList)
-
-	sessionName, err := utils.PromptForSessionName(sessionNames)
-	if err != nil {
-		log.Fatal().Err(err).Msg("halting build tunnel process")
-	}
-	log.Debug().Msg(sessionName)
-
-	_ = sessionName
 
 	for range numJobs {
 		go goWorker(jobs, results)
@@ -56,16 +64,30 @@ func BuildTunnelAndSSH(resourceNames string) {
 
 	close(jobs)
 
+	connections := make([]utils.SSHConnection, 0, numJobs)
 	for range numJobs {
 		sshConnection := <-results
+		connections = append(connections, sshConnection)
+	}
+
+	return connections
+}
+
+func setupTMUXEnvironment(
+	connections []utils.SSHConnection,
+	sessionName string,
+) error {
+	for _, sshConnection := range connections {
+		// sshConnection := <-connections
 		log.Info().Interface("SSH Connection", sshConnection).Msg("")
 		err := utils.CreateTMUXSSHSession(sshConnection, sessionName)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to create TMUX SSH session")
+			return fmt.Errorf("failed to create TMUX SSH session: %w", err)
 		}
 	}
-
 	utils.ArrangeLayout(sessionName)
+
+	return nil
 }
 
 func createTunnels(instanceList []Instance, jobs chan [2]string) {

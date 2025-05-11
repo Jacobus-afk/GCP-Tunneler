@@ -8,9 +8,10 @@ import (
 
 	// "gcp-tunneler/config"
 	"gcp-tunneler/internal/config"
+	gcptunneler "gcp-tunneler/internal/gcp_api"
 	"gcp-tunneler/internal/menu"
 	"gcp-tunneler/internal/tunnelbuilder"
-	gcptunneler "gcp-tunneler/internal/gcp_api"
+	"gcp-tunneler/internal/utils"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -53,7 +54,7 @@ func main() {
 		projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
 		jsonData, err := json.MarshalIndent(projectDataList, "", "  ")
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error marshaling to JSON: %v")
+			log.Fatal().Err(err).Msg("error marshaling to JSON")
 		}
 
 		log.Info().Str("config_file", cfg.InstanceFilename).Msg("Writing configuration to file...")
@@ -78,6 +79,14 @@ func main() {
 	}
 
 	resourceNames := menu.HandleFZFMenu()
-	tunnelbuilder.BuildTunnelAndSSH(resourceNames)
+	sessionName, err := tunnelbuilder.BuildTunnelAndSSH(resourceNames)
+	if err != nil {
+		log.Fatal().Err(err).Msg("error building tunnels")
+	}
+
+	switchErr := utils.SwitchToCreatedSession(sessionName)
+	if switchErr != nil {
+		log.Fatal().Err(switchErr).Msg("couldn't switch to tmux session")
+	}
 
 }

@@ -36,9 +36,9 @@ func PromptForSessionName(sessionNames map[string]bool) (string, error) {
 	output, err := cmd.Output()
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
-			return "", fmt.Errorf("session name selection canceled: %v", err)
+			return "", fmt.Errorf("session name selection canceled: %w", err)
 		}
-		return "", fmt.Errorf("failed to run fzf: %v", err)
+		return "", fmt.Errorf("failed to run fzf: %w", err)
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
