@@ -53,7 +53,7 @@ func main() {
 		projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
 		jsonData, err := json.MarshalIndent(projectDataList, "", "  ")
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error marshaling to JSON: %v")
+			log.Fatal().Err(err).Msg("Error marshaling to JSON")
 		}
 
 		log.Info().Str("config_file", cfg.InstanceFilename).Msg("Writing configuration to file...")

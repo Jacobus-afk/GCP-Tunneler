@@ -93,29 +93,29 @@ func worker(
 	}
 }
 
-func MatchInstancesWithHosts(ctx context.Context, projectID string) {
-	instMap := ListInstances(ctx, projectID)
-	instGroupMap := ListZonalInstanceGroups(ctx, projectID, instMap)
-
-	backendDataMap, _ := buildBackendServiceMap(ctx, projectID, instGroupMap)
-
-	// hostMap := ListURLMapsWithRules(ctx, projectID)
-	// fmt.Println(hostMap)
-	// _ = hostMap
-	// _ = instanceList
-	// for _, entry := range instMap {
-	// 	log.Info().Interface("InstanceData",entry).Msg("")
-	// }
-	// for _, entry := range instGroupMap {
-	// 	log.Info().Interface("InstanceGroupData",entry).Msg("")
-	// }
-	// for _, entry := range zoneMap {
-	// 	log.Info().Interface("ZoneData",entry).Msg("")
-	// }
-	for be, entry := range backendDataMap {
-		log.Info().Interface("BackendData", entry).Msg(be)
-	}
-}
+// func MatchInstancesWithHosts(ctx context.Context, projectID string) {
+// 	instMap := ListInstances(ctx, projectID)
+// 	instGroupMap := ListZonalInstanceGroups(ctx, projectID, instMap)
+//
+// 	backendDataMap, _ := buildBackendServiceMap(ctx, projectID, instGroupMap)
+//
+// 	// hostMap := ListURLMapsWithRules(ctx, projectID)
+// 	// fmt.Println(hostMap)
+// 	// _ = hostMap
+// 	// _ = instanceList
+// 	// for _, entry := range instMap {
+// 	// 	log.Info().Interface("InstanceData",entry).Msg("")
+// 	// }
+// 	// for _, entry := range instGroupMap {
+// 	// 	log.Info().Interface("InstanceGroupData",entry).Msg("")
+// 	// }
+// 	// for _, entry := range zoneMap {
+// 	// 	log.Info().Interface("ZoneData",entry).Msg("")
+// 	// }
+// 	for be, entry := range backendDataMap {
+// 		log.Info().Interface("BackendData", entry).Msg(be)
+// 	}
+// }
 
 func buildBackendServiceMap(
 	ctx context.Context,
@@ -245,7 +245,7 @@ func ListZonalInstanceGroups(
 
 			for resp, err := range instanceGroupsClient.ListInstances(ctx, listReq).All() {
 				if err != nil {
-					fmt.Printf("    Error listing instances: %v\n", err)
+					log.Error().Err(err).Msg("Error listing instances")
 					continue
 				}
 				instance_name := path.Base(*resp.Instance)
