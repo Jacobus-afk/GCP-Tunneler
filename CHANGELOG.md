@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/Jacobus-afk/GCP-Tunneler/compare/v0.2.1...v0.3.0) (2025-05-11)
+
+
+### Features
+
+* **tmux session:** 5 after selecting projects to tunnel into move to that session ([#22](https://github.com/Jacobus-afk/GCP-Tunneler/issues/22)) ([69a26db](https://github.com/Jacobus-afk/GCP-Tunneler/commit/69a26db54ce9a2471c7ca5db72698540f5a96dc0))
+
 ## [0.2.1](https://github.com/Jacobus-afk/GCP-Tunneler/compare/v0.2.0...v0.2.1) (2025-05-11)
 
 
