@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 
 	// "gcp-tunneler/config"
 	"gcp-tunneler/internal/config"
@@ -17,10 +18,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func run() (string, error) {
+func loadConfiguration() error {
 	cfg := config.GetConfig()
 
-	configureLogger()
 
 	reloadConfig := parseCmdLineArgs()
 	configGCPResourceFileExists := utils.CheckIfFileExists(cfg.InstanceFilename)
@@ -34,33 +34,28 @@ func run() (string, error) {
 
 		jsonData, jsonErr := json.MarshalIndent(projectDataList, "", "  ")
 		if jsonErr != nil {
-			return "error marshaling to JSON", jsonErr
+			return fmt.Errorf("error marshaling to JSON: %w", jsonErr)
 		}
 
 		if writeErr := os.WriteFile(cfg.InstanceFilename, jsonData, 0644); writeErr != nil {
-			return "couldn't write GCP resource details to file", writeErr
+			return fmt.Errorf("couldn't write GCP resource details to file: %w", writeErr)
 		}
 
 	}
-
-	resourceNames := menu.HandleFZFMenu()
-	sessionName, sessErr := tunnelbuilder.BuildTunnelAndSSH(resourceNames)
-	if sessErr != nil {
-		return "error building tunnels", sessErr
-	}
-
-	switchErr := utils.SwitchToCreatedSession(sessionName)
-	if switchErr != nil {
-		return "couldn't switch to tmux session", switchErr
-	}
-	return "", nil
+	return nil
 }
 
-func main() {
-	msg, err := run()
+func selectResources() string {
+	resourceNames := menu.HandleFZFMenu()
+	return resourceNames
+}
+
+func connectToResources(resourceNames string) (string, error) {
+	sessionName, err := tunnelbuilder.BuildTunnelAndSSH(resourceNames)
 	if err != nil {
-		log.Fatal().Err(err).Msg(msg)
+		return "", fmt.Errorf("error building tunnels: %w", err)
 	}
+	return sessionName, nil
 }
 
 func parseCmdLineArgs() (reloadConfig bool) {
@@ -103,4 +98,32 @@ func populateGCPResources() []gcptunneler.ProjectData {
 	// log.Println(string(jsonData))
 
 	return projectDataList
+}
+
+func run() error {
+	configureLogger()
+
+	cfgErr := loadConfiguration()
+	if cfgErr != nil {
+		return cfgErr
+	}
+
+	resourceNames := selectResources()
+	sessionName, sessErr := connectToResources(resourceNames)
+	if sessErr != nil {
+		return sessErr
+	}
+
+	switchErr := utils.SwitchToCreatedSession(sessionName)
+	if switchErr != nil {
+		return fmt.Errorf("couldn't switch to tmux session: %w", switchErr)
+	}
+	return nil
+}
+
+func main() {
+	err := run()
+	if err != nil {
+		log.Fatal().Err(err).Msg("application failed")
+	}
 }
