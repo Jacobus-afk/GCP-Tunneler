@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 
 	// "gcp-tunneler/config"
@@ -18,20 +17,53 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type ResourceType int
+func run() (string, error) {
+	cfg := config.GetConfig()
 
-const (
-	BackendResource ResourceType = iota
-	InstanceResource
-)
+	configureLogger()
 
-func (r ResourceType) String() string {
-	return [...]string{"backends", "instances"}[r]
+	reloadConfig := parseCmdLineArgs()
+	configGCPResourceFileExists := utils.CheckIfFileExists(cfg.InstanceFilename)
+
+	if reloadConfig || !configGCPResourceFileExists {
+		projectDataList := populateGCPResources()
+
+		log.Info().
+			Str("config_file", cfg.InstanceFilename).
+			Msg("writing GCP resource details to file...")
+
+		jsonData, jsonErr := json.MarshalIndent(projectDataList, "", "  ")
+		if jsonErr != nil {
+			return "error marshaling to JSON", jsonErr
+		}
+
+		if writeErr := os.WriteFile(cfg.InstanceFilename, jsonData, 0644); writeErr != nil {
+			return "couldn't write GCP resource details to file", writeErr
+		}
+
+	}
+
+	resourceNames := menu.HandleFZFMenu()
+	sessionName, sessErr := tunnelbuilder.BuildTunnelAndSSH(resourceNames)
+	if sessErr != nil {
+		return "error building tunnels", sessErr
+	}
+
+	switchErr := utils.SwitchToCreatedSession(sessionName)
+	if switchErr != nil {
+		return "couldn't switch to tmux session", switchErr
+	}
+	return "", nil
 }
 
 func main() {
-	cfg := config.GetConfig()
-	var reloadConfig bool
+	msg, err := run()
+	if err != nil {
+		log.Fatal().Err(err).Msg(msg)
+	}
+}
+
+func parseCmdLineArgs() (reloadConfig bool) {
 	flag.BoolVar(
 		&reloadConfig,
 		"reload-config",
@@ -39,54 +71,36 @@ func main() {
 		"whether or not to repopulate the instance list from GCP",
 	)
 	flag.Parse()
+
+	return reloadConfig
+}
+
+func configureLogger() {
 	// zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+}
 
-	// If instanceFile doesn't exist, or --reload-config flag
-	if _, err := os.Stat(cfg.InstanceFilename); errors.Is(err, os.ErrNotExist) {
-		reloadConfig = true
-	}
+func populateGCPResources() []gcptunneler.ProjectData {
+	ctx := context.Background()
 
-	if reloadConfig {
-		ctx := context.Background()
+	projects := gcptunneler.ListProjects(ctx)
+	projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
 
-		projects := gcptunneler.ListProjects(ctx)
-		projectDataList := gcptunneler.GetInstancesByProject(ctx, projects)
-		jsonData, err := json.MarshalIndent(projectDataList, "", "  ")
-		if err != nil {
-			log.Fatal().Err(err).Msg("error marshaling to JSON")
-		}
+	// ------------DEBUG stuff
+	// for _, project := range projects {
+	// 	fmt.Println(project)
+	// 	instances := gcptunneler.ListInstances(ctx, project)
+	// 	for _, instance := range instances {
+	// 		fmt.Println(instance)
+	// 	}
+	//
+	// }
 
-		log.Info().Str("config_file", cfg.InstanceFilename).Msg("Writing configuration to file...")
+	// for _, data := range projectDataList {
+	// 	log.Println(data)
+	// }
 
-		os.WriteFile(cfg.InstanceFilename, jsonData, 0644)
+	// log.Println(string(jsonData))
 
-		// ------------DEBUG stuff
-		// for _, project := range projects {
-		// 	fmt.Println(project)
-		// 	instances := gcptunneler.ListInstances(ctx, project)
-		// 	for _, instance := range instances {
-		// 		fmt.Println(instance)
-		// 	}
-		//
-		// }
-
-		// for _, data := range projectDataList {
-		// 	log.Println(data)
-		// }
-
-		// log.Println(string(jsonData))
-	}
-
-	resourceNames := menu.HandleFZFMenu()
-	sessionName, err := tunnelbuilder.BuildTunnelAndSSH(resourceNames)
-	if err != nil {
-		log.Fatal().Err(err).Msg("error building tunnels")
-	}
-
-	switchErr := utils.SwitchToCreatedSession(sessionName)
-	if switchErr != nil {
-		log.Fatal().Err(switchErr).Msg("couldn't switch to tmux session")
-	}
-
+	return projectDataList
 }
