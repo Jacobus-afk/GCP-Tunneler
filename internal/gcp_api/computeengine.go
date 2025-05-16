@@ -130,7 +130,7 @@ func buildBackendServiceMap(
 		log.Error().Err(err).Msg("failed to create backend services client")
 		return backendDataMap, nil
 	}
-	defer backendServicesClient.Close()
+	defer func() { _ = backendServicesClient.Close() }()
 
 	req := &computepb.AggregatedListBackendServicesRequest{
 		Project: projectID,
@@ -193,7 +193,7 @@ func ListZonalInstanceGroups(
 		log.Error().Err(err).Msg("failed to create instance groups client")
 		return instGroupMap
 	}
-	defer instanceGroupsClient.Close()
+	defer func() { _ = instanceGroupsClient.Close() }()
 
 	// Use AggregatedList to get all instance groups across zones
 	req := &computepb.AggregatedListInstanceGroupsRequest{
@@ -331,7 +331,7 @@ func ListInstances(ctx context.Context, projectID string) map[string]InstanceDat
 
 	instMap := map[string]InstanceData{}
 	instancesClient, _ := compute.NewInstancesRESTClient(ctx)
-	defer instancesClient.Close()
+	defer func() { _ = instancesClient.Close() }()
 
 	filterStr := "status = RUNNING"
 	req := &computepb.AggregatedListInstancesRequest{
@@ -386,13 +386,13 @@ func checkInclusions(instance *computepb.Instance) bool {
 	return false
 }
 
-func checkExclusions(instance *computepb.Instance) bool {
-	instanceExclusions := config.GetConfig().Exclusions
-	instanceName := *instance.Name
-	for _, pattern := range instanceExclusions {
-		if strings.Contains(instanceName, pattern) {
-			return true
-		}
-	}
-	return false
-}
+// func checkExclusions(instance *computepb.Instance) bool {
+// 	instanceExclusions := config.GetConfig().Exclusions
+// 	instanceName := *instance.Name
+// 	for _, pattern := range instanceExclusions {
+// 		if strings.Contains(instanceName, pattern) {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }

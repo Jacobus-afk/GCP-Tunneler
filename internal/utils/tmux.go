@@ -64,9 +64,9 @@ func ArrangeLayout(sessionName string) {
 }
 
 func CreateTMUXTunnelSession(gcloudCMD string, instanceName string) {
-	CommandRun("tmux", "new", "-d", "-s", "GCPTunnel")
+	_ = CommandRun("tmux", "new", "-d", "-s", "GCPTunnel")
 
-	CommandRun(
+	_ = CommandRun(
 		"tmux",
 		"new-window",
 		"-t",

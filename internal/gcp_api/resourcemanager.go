@@ -14,7 +14,7 @@ func ListProjects(ctx context.Context) []string {
 	projectList := []string{}
 
 	projectsClient, _ := resourcemanager.NewProjectsClient(ctx)
-	defer projectsClient.Close()
+	defer func() { _ = projectsClient.Close()}()
 
 	req := &resourcemanagerpb.SearchProjectsRequest{}
 
