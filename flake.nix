@@ -19,6 +19,7 @@
               gopls
               gotools
               gofumpt
+              golangci-lint
               gomodifytags
               impl
               delve

@@ -71,8 +71,8 @@ func HandleFZFMenu() (string){
 		responseFZF      string
 		selectedProject  string
 		selectedView     string
-		selectedInstance string
-		selectedBackend  string
+		// selectedInstance string
+		// selectedBackend  string
 	)
 
 	currentMenu := ProjectMenu
@@ -82,8 +82,8 @@ func HandleFZFMenu() (string){
 
 		case ProjectMenu:
 			selectedView = ""
-			selectedInstance = ""
-			selectedBackend = ""
+			// selectedInstance = ""
+			// selectedBackend = ""
 			responseFZF = selectProject()
 			selectedProject = responseFZF
 
@@ -94,12 +94,12 @@ func HandleFZFMenu() (string){
 		case ResourcesMenu:
 			if selectedView == BackendResource.String() {
 				responseFZF = selectBackend(selectedProject)
-				selectedBackend = responseFZF
-				_ = selectedBackend
+				// selectedBackend = responseFZF
+				// _ = selectedBackend
 			} else if selectedView == InstanceResource.String() {
 				responseFZF = selectInstance(selectedProject)
-				selectedInstance = responseFZF
-				_ = selectedInstance
+				// selectedInstance = responseFZF
+				// _ = selectedInstance
 			}
 
 		}
