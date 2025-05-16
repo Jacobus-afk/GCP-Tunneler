@@ -78,7 +78,6 @@ type Application struct {
 
 // func LoadConfiguration(defaultDeps *DefaultDependencies) error {
 func (app *Application) LoadConfiguration() error {
-	log.Info().Msg("sanity check")
 	cfg := app.Config.GetConfig()
 
 	reloadConfig := app.Config.ParseCmdLineArgs()
