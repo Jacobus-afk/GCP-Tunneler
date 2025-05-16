@@ -23,10 +23,10 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
     
-    - name: Set up test environment
-      run: |
-        # Create a dummy .env file with test values
-        echo "GCPT_SSH_TIMEOUT=12" > .env
+    # - name: Set up test environment
+    #   run: |
+    #     # Create a dummy .env file with test values
+    #     echo "GCPT_SSH_TIMEOUT=12" > .env
 
     - name: Run tests
       run: go test -v ./...
