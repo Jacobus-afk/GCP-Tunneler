@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	ConfigPath = config.GetConfig().InstanceFilename
+	ConfigPath = config.GetConfig().GCPResourceDetailsFilename
 
 	SelectProjectScript  = path.Join(ScriptsDir, "project_select.sh")
 	SelectViewScript     = path.Join(ScriptsDir, "view_select.sh")

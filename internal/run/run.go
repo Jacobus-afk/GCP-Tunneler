@@ -77,17 +77,16 @@ type Application struct {
 }
 
 // func LoadConfiguration(defaultDeps *DefaultDependencies) error {
-func (app *Application) LoadConfiguration() error {
-	cfg := app.Config.GetConfig()
+func (app *Application) WriteResourceDetailsToFile(reloadCfgFlag bool, envCfg *config.Config) error {
+	configGCPResourceFileExists := app.Config.CheckIfFileExists(envCfg.GCPResourceDetailsFilename)
 
 	reloadConfig := app.Config.ParseCmdLineArgs()
-	configGCPResourceFileExists := app.Config.CheckIfFileExists(cfg.InstanceFilename)
 
 	if reloadConfig || !configGCPResourceFileExists {
 		projectDataList := app.Config.PopulateGCPResources()
 
 		log.Info().
-			Str("config_file", cfg.InstanceFilename).
+			Str("config_file", envCfg.GCPResourceDetailsFilename).
 			Msg("writing GCP resource details to file...")
 
 		jsonData, jsonErr := json.MarshalIndent(projectDataList, "", "  ")
@@ -95,7 +94,7 @@ func (app *Application) LoadConfiguration() error {
 			return fmt.Errorf("error marshaling to JSON: %w", jsonErr)
 		}
 
-		if writeErr := app.Config.WriteFile(cfg.InstanceFilename, jsonData, 0644); writeErr != nil {
+		if writeErr := app.Config.WriteFile(envCfg.GCPResourceDetailsFilename, jsonData, 0644); writeErr != nil {
 			return fmt.Errorf("couldn't write GCP resource details to file: %w", writeErr)
 		}
 

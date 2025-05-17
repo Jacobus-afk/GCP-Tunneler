@@ -11,10 +11,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const ResourceDetailsFilename = "gcp_resource_details.json"
+
 type Config struct {
 	Exclusions                []string
 	Inclusions                []string
-	InstanceFilename          string
+	GCPResourceDetailsFilename          string
 	SSHTimeout                int
 }
 
@@ -33,7 +35,7 @@ func GetConfig() *Config {
 		exclusionsEnv := os.Getenv("GCPT_EXCLUDED_INSTANCES")
 		inclusionsEnv := os.Getenv("GCPT_INCLUDED_INSTANCES")
 
-		instanceFilename := os.Getenv("GCPT_INSTANCE_FILENAME")
+		// resourceDetailsFilename := os.Getenv("GCPT_RESOURCE_DETAILS_FILENAME")
 		sshTimeout, err := strconv.Atoi(os.Getenv("GCPT_SSH_TIMEOUT"))
 		if err != nil {
 			log.Error().Err(err).Msg("invalid timeout value. reverting to default")
@@ -44,10 +46,10 @@ func GetConfig() *Config {
 		exclusions := envSplitter(exclusionsEnv)
 
 		instance = &Config{
-			Exclusions:                exclusions,
-			Inclusions:                inclusions,
-			InstanceFilename:          instanceFilename,
-			SSHTimeout:                sshTimeout,
+			Exclusions:                 exclusions,
+			Inclusions:                 inclusions,
+			GCPResourceDetailsFilename: ResourceDetailsFilename,
+			SSHTimeout:                 sshTimeout,
 		}
 	})
 	return instance

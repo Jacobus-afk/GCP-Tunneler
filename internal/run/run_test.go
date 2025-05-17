@@ -40,6 +40,7 @@ func (t *TestDoubleConfiguration) WriteFile(name string, data []byte, perm os.Fi
 
 func TestLoadConfigurationShouldntWriteToFile(t *testing.T) {
 	writeFileCalled := false
+	envCfg := config.Config{GCPResourceDetailsFilename: "test.json"}
 	mockConfig := &TestDoubleConfiguration{
 		GetConfigFn: func() *config.Config {
 			return &config.Config{InstanceFilename: "test.json"}
