@@ -3,58 +3,25 @@ package run
 import (
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
-
-	// "gcp-tunneler/config"
 	"gcp-tunneler/internal/config"
-	gcptunneler "gcp-tunneler/internal/gcp_api"
 	"gcp-tunneler/internal/menu"
 	"gcp-tunneler/internal/tunnelbuilder"
 	"gcp-tunneler/internal/utils"
 	"os"
 
-	"github.com/rs/zerolog"
+	gcptunneler "gcp-tunneler/internal/gcp_api"
+
 	"github.com/rs/zerolog/log"
 )
 
 type Configuration interface {
-	GetConfig() *config.Config
 	CheckIfFileExists(path string) bool
 	PopulateGCPResources() []gcptunneler.ProjectData
-	ParseCmdLineArgs() bool
 	WriteFile(name string, data []byte, perm os.FileMode) error
 }
 
-// type DefaultDependencies struct {
-// 	configuration Configuration
-// }
-//
-// func (d *DefaultDependencies) GetConfig() *config.Config {
-// 	return d.configuration.GetConfig()
-// }
-//
-// func (d *DefaultDependencies) CheckIfFileExists(path string) bool {
-// 	return d.configuration.CheckIfFileExists(path)
-// }
-//
-// func (d *DefaultDependencies) PopulateGCPResources() []gcptunneler.ProjectData {
-// 	return d.configuration.PopulateGCPResources()
-// }
-//
-// func (d *DefaultDependencies) ParseCmdLineArgs() bool {
-// 	return d.configuration.ParseCmdLineArgs()
-// }
-//
-// func (d *DefaultDependencies) WriteFile(name string, data []byte, perm os.FileMode) error {
-// 	return d.configuration.WriteFile(name, data, perm)
-// }
-
 type RealConfiguration struct{}
-
-func (r *RealConfiguration) GetConfig() *config.Config {
-	return config.GetConfig()
-}
 
 func (r *RealConfiguration) CheckIfFileExists(path string) bool {
 	return utils.CheckIfFileExists(path)
@@ -62,10 +29,6 @@ func (r *RealConfiguration) CheckIfFileExists(path string) bool {
 
 func (r *RealConfiguration) PopulateGCPResources() []gcptunneler.ProjectData {
 	return populateGCPResources()
-}
-
-func (r *RealConfiguration) ParseCmdLineArgs() bool {
-	return parseCmdLineArgs()
 }
 
 func (r *RealConfiguration) WriteFile(name string, data []byte, perm os.FileMode) error {
@@ -76,13 +39,10 @@ type Application struct {
 	Config Configuration
 }
 
-// func LoadConfiguration(defaultDeps *DefaultDependencies) error {
 func (app *Application) WriteResourceDetailsToFile(reloadCfgFlag bool, envCfg *config.Config) error {
 	configGCPResourceFileExists := app.Config.CheckIfFileExists(envCfg.GCPResourceDetailsFilename)
 
-	reloadConfig := app.Config.ParseCmdLineArgs()
-
-	if reloadConfig || !configGCPResourceFileExists {
+	if reloadCfgFlag || !configGCPResourceFileExists {
 		projectDataList := app.Config.PopulateGCPResources()
 
 		log.Info().
@@ -115,23 +75,6 @@ func connectToResources(resourceNames string) (string, error) {
 	return sessionName, nil
 }
 
-func parseCmdLineArgs() (reloadConfig bool) {
-	flag.BoolVar(
-		&reloadConfig,
-		"reload-config",
-		false,
-		"whether or not to repopulate the instance list from GCP",
-	)
-	flag.Parse()
-
-	return reloadConfig
-}
-
-func configureLogger() {
-	// zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
-}
-
 func populateGCPResources() []gcptunneler.ProjectData {
 	ctx := context.Background()
 
@@ -157,14 +100,8 @@ func populateGCPResources() []gcptunneler.ProjectData {
 	return projectDataList
 }
 
-func (app *Application) Run() error {
-	configureLogger()
-
-	// realConfig := &RealConfiguration{}
-	//
-	// defaultDeps := &DefaultDependencies{configuration: realConfig}
-
-	cfgErr := app.LoadConfiguration()
+func (app *Application) Run(reloadCfgFlag bool, envCfg *config.Config) error {
+	cfgErr := app.WriteResourceDetailsToFile(reloadCfgFlag, envCfg)
 	if cfgErr != nil {
 		return cfgErr
 	}
