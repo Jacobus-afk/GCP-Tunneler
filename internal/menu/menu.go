@@ -17,7 +17,13 @@ const (
 )
 
 var (
+<<<<<<< Updated upstream
 	ConfigPath = config.GetConfig().InstanceFilename
+||||||| Stash base
+	ConfigPath = config.GetConfig().GCPResourceDetailsFilename
+=======
+	// ConfigPath = config.GetConfig().GCPResourceDetailsFilename
+>>>>>>> Stashed changes
 
 	SelectProjectScript  = path.Join(ScriptsDir, "project_select.sh")
 	SelectViewScript     = path.Join(ScriptsDir, "view_select.sh")
@@ -149,16 +155,18 @@ func Menu() {
 }
 
 func selectProject() string {
-	selectedProject := utils.CommandCombinedOutput(SelectProjectScript, ConfigPath)
+	configPath := config.GetConfig().GCPResourceDetailsFilename
+	selectedProject := utils.CommandCombinedOutput(SelectProjectScript, configPath)
 	// log.Print(selectedProject)
 
 	return selectedProject
 }
 
 func selectView(selectedProject string) string {
+	configPath := config.GetConfig().GCPResourceDetailsFilename
 	selectedView := utils.CommandCombinedOutput(
 		SelectViewScript,
-		ConfigPath,
+		configPath,
 		selectedProject,
 	)
 	// log.Print(selectedView)
@@ -167,17 +175,19 @@ func selectView(selectedProject string) string {
 }
 
 func selectBackend(selectedProject string) string {
+	configPath := config.GetConfig().GCPResourceDetailsFilename
 	selectedBackend := utils.CommandCombinedOutput(
 		SelectBackendScript,
-		ConfigPath, selectedProject,
+		configPath, selectedProject,
 	)
 	return selectedBackend
 }
 
 func selectInstance(selectedProject string) string {
+	configPath := config.GetConfig().GCPResourceDetailsFilename
 	selectedInstance := utils.CommandCombinedOutput(
 		SelectInstanceScript,
-		ConfigPath, selectedProject,
+		configPath, selectedProject,
 	)
 
 	return selectedInstance
