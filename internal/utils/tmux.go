@@ -78,7 +78,7 @@ func CreateTMUXTunnelSession(gcloudCMD string, instanceName string) {
 }
 
 func WaitForSSHSession(currentUser string, freePort string) bool {
-	timeoutVal := config.GetConfig().SSHTimeout
+	timeoutVal := config.GetConfig().SSH.Timeout
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutVal)*time.Second)
 	defer cancel()
 

@@ -14,6 +14,10 @@
   },
   "MD033": {
     // Allowed elements
-    "allowed_elements": ["div"]
+    "allowed_elements": ["div", "br"]
+  },
+  "MD041": {
+    // Heading level
+    "level": 1
   }
 }

@@ -21,6 +21,7 @@ go.work.sum
 # env file
 .env
 instances.json
+gcp_resource_details.json
 
 tmux-client-*.log
 # Added by goreleaser init:
