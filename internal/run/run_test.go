@@ -30,7 +30,7 @@ func (t *TestDoubleConfiguration) WriteFile(name string, data []byte, perm os.Fi
 
 func TestProgramShouldntWriteToFile(t *testing.T) {
 	writeFileCalled := false
-	envCfg := config.Config{GCPResourceDetailsFilename: "test.json"}
+	envCfg := config.ConfigV2{GCPResourceDetailsFilename: "test.json"}
 	reloadCfgFlag := false
 	mockConfig := &TestDoubleConfiguration{
 		CheckIfFileExistsFn: func(string) bool {

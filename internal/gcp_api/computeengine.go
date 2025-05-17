@@ -376,7 +376,7 @@ func ListInstances(ctx context.Context, projectID string) map[string]InstanceDat
 }
 
 func checkInclusions(instance *computepb.Instance) bool {
-	instanceInclusions := config.GetConfig().Inclusions
+	instanceInclusions := config.GetConfig().Instances.Included
 	instanceName := *instance.Name
 	for _, pattern := range instanceInclusions {
 		if strings.Contains(instanceName, pattern) {

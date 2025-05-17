@@ -1,0 +1,8 @@
+# Instance filtering configuration
+[instances]
+excluded = []
+included = ["foo","bar"]
+
+# SSH settings
+[ssh]
+timeout = 12

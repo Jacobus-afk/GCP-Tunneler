@@ -39,7 +39,7 @@ type Application struct {
 	Config Configuration
 }
 
-func (app *Application) WriteResourceDetailsToFile(reloadCfgFlag bool, envCfg *config.Config) error {
+func (app *Application) WriteResourceDetailsToFile(reloadCfgFlag bool, envCfg *config.ConfigV2) error {
 	configGCPResourceFileExists := app.Config.CheckIfFileExists(envCfg.GCPResourceDetailsFilename)
 
 	if reloadCfgFlag || !configGCPResourceFileExists {
@@ -100,7 +100,7 @@ func populateGCPResources() []gcptunneler.ProjectData {
 	return projectDataList
 }
 
-func (app *Application) Run(reloadCfgFlag bool, envCfg *config.Config) error {
+func (app *Application) Run(reloadCfgFlag bool, envCfg *config.ConfigV2) error {
 	cfgErr := app.WriteResourceDetailsToFile(reloadCfgFlag, envCfg)
 	if cfgErr != nil {
 		return cfgErr
