@@ -39,6 +39,7 @@ archives:
       - scripts/*.sh
       - README.md
       - LICENSE
+      - config.toml
 
 changelog:
   sort: asc
