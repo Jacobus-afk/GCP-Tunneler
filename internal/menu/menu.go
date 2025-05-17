@@ -17,14 +17,6 @@ const (
 )
 
 var (
-<<<<<<< Updated upstream
-	ConfigPath = config.GetConfig().InstanceFilename
-||||||| Stash base
-	ConfigPath = config.GetConfig().GCPResourceDetailsFilename
-=======
-	// ConfigPath = config.GetConfig().GCPResourceDetailsFilename
->>>>>>> Stashed changes
-
 	SelectProjectScript  = path.Join(ScriptsDir, "project_select.sh")
 	SelectViewScript     = path.Join(ScriptsDir, "view_select.sh")
 	SelectBackendScript  = path.Join(ScriptsDir, "backend_select.sh")
