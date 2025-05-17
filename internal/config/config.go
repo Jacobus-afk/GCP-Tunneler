@@ -1,8 +1,6 @@
 package config
 
 import (
-	// "os"
-	// "strconv"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,13 +20,6 @@ const (
 	ResourceDetailsFilename = "gcp_resource_details.json"
 	ConfigFilename          = "config.toml"
 )
-
-// type Config struct {
-// 	ExcludedInstances          []string `koanf:"excluded.instances"`
-// 	Inclusions                 []string `koanf:"included.instances"`
-// 	GCPResourceDetailsFilename string   `koanf:"gcp_resource_details_filename"`
-// 	SSHTimeout                 int      `koanf:"ssh.timeout"`
-// }
 
 type Instances struct {
 	Excluded []string `koanf:"excluded"`
@@ -50,15 +41,6 @@ var (
 	once   sync.Once
 )
 
-// func NewDefaultConfig() *Config {
-// 	return &Config{
-// 		ExcludedInstances:          []string{},
-// 		Inclusions:                 []string{},
-// 		GCPResourceDetailsFilename: ResourceDetailsFilename,
-// 		SSHTimeout:                 12,
-// 	}
-// }
-
 func NewUpdatedConfig() *ConfigV2 {
 	return &ConfigV2{
 		Instances:                  Instances{Excluded: []string{}, Included: []string{}},
@@ -75,14 +57,6 @@ func GetConfig() *ConfigV2 {
 
 		k := koanf.New(".")
 
-		// configPath, cfgPathErr := getConfigFilePath()
-		// if cfgPathErr != nil {
-		// 	log.Warn().Err(cfgPathErr).Msg("")
-		// } else {
-		// 	if err := k.Load(file.Provider(configPath), toml.Parser()); err != nil {
-		// 		log.Warn().Err(err).Str("config_file", configPath).Msg("couldn't load config file")
-		// 	}
-		// }
 		if err := loadConfigFromFile(k); err != nil {
 			log.Warn().Err(err).Msg("issue loading config from file")
 		}
@@ -102,9 +76,6 @@ func GetConfig() *ConfigV2 {
 		if envErr != nil {
 			log.Error().Err(envErr).Msg("error loading environment variables")
 		}
-		// if err := k.Load(env.Provider("GCPT_", ".", nil), nil); err != nil {
-		// 	log.Error().Err(err).Msg("error loading environment variables")
-		// }
 
 		// fmt.Println("\nKeys in Koanf after loading:")
 		// for _, key := range k.Keys() {
@@ -116,35 +87,6 @@ func GetConfig() *ConfigV2 {
 		}
 
 		// log.Debug().Interface("config", config).Msg("")
-
-		// 	var instance Config
-		//
-		// 	_ = godotenv.Overload()
-		// 	// if err != nil {
-		// 	// 	log.Error().Err(err).Msg("Error loading .env file")
-		// 	// }
-		//
-		// 	exclusionsEnv := os.Getenv("GCPT_EXCLUDED_INSTANCES")
-		// 	inclusionsEnv := os.Getenv("GCPT_INCLUDED_INSTANCES")
-		//
-		// 	// resourceDetailsFilename := os.Getenv("GCPT_RESOURCE_DETAILS_FILENAME")
-		// 	sshTimeout, err := strconv.Atoi(os.Getenv("GCPT_SSH_TIMEOUT"))
-		// 	if err != nil {
-		// 		log.Error().Err(err).Msg("invalid timeout value. reverting to default")
-		// 		sshTimeout = 12
-		// 	}
-		//
-		// 	inclusions := envSplitter(inclusionsEnv)
-		// 	exclusions := envSplitter(exclusionsEnv)
-		//
-		// 	// envCfgErr := envconfig
-		//
-		// 	instance = &Config{
-		// 		Exclusions:                 exclusions,
-		// 		Inclusions:                 inclusions,
-		// 		// GCPResourceDetailsFilename: ResourceDetailsFilename,
-		// 		SSHTimeout:                 sshTimeout,
-		// 	}
 	})
 	return config
 }
@@ -175,15 +117,3 @@ func getConfigFilePath() (string, error) {
 
 	return configPath, nil
 }
-
-// func envSplitter(env_string string) []string {
-// 	if env_string == "" {
-// 		return []string{}
-// 	}
-//
-// 	string_list := strings.Split(env_string, ",")
-// 	for i := range string_list {
-// 		string_list[i] = strings.TrimSpace(string_list[i])
-// 	}
-// 	return string_list
-// }
