@@ -3,7 +3,7 @@
 INSTALL_DIR=""
 TEMP_DIR=/tmp/gcp-tunneler
 trap "rm -rf $TEMP_DIR" EXIT
-CONFIG_DIR=$HOME/.config/gcp_tunneler
+CONFIG_DIR=$HOME/.config/gcp-tunneler
 
 SUPPORTED_TARGETS="linux-amd64"
 
