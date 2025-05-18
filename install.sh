@@ -139,9 +139,10 @@ install_scripts() {
 
   validate_config_directory
 
-  info "🎨 Installing GCP Tunneler scripts in ${CONFIG_DIR}\n"
+  info "🚧 Installing GCP Tunneler scripts in ${CONFIG_DIR}\n"
 
   cp -a /tmp/gcp-tunneler/scripts $CONFIG_DIR
+  cp -a /tmp/gcp-tunneler/config.toml.example
 
   if [ $? -ne 0 ]; then
     error "Unable to copy scripts to ${CONFIG_DIR}"
@@ -223,7 +224,7 @@ install() {
 
   install_scripts
 
-  info "🚀 Installation complete."
+  info "🚇 Installation complete."
 }
 
 validate_dependencies
