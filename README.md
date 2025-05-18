@@ -10,6 +10,14 @@ Command builder for `gcloud compute` ssh tunnels
 
 - [tmux](https://github.com/tmux/tmux/wiki/Installing)
 
+## Installation
+
+### Linux
+
+```shell
+curl -s -H "Accept:application/vnd.github.v3.raw" https://api.github.com/repos/Jacobus-afk/gcp-tunneler/contents/install.sh | bash -s
+```
+
 ## Configuration
 
 Configuration can be done via either environment variables, or a configuration file
