@@ -142,7 +142,7 @@ install_scripts() {
   info "🚧 Installing GCP Tunneler scripts in ${CONFIG_DIR}\n"
 
   cp -a /tmp/gcp-tunneler/scripts $CONFIG_DIR
-  cp -a /tmp/gcp-tunneler/config.toml.example
+  cp -a /tmp/gcp-tunneler/config.toml.example $CONFIG_DIR
 
   if [ $? -ne 0 ]; then
     error "Unable to copy scripts to ${CONFIG_DIR}"
