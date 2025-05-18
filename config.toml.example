@@ -6,3 +6,6 @@ included = ["foo","bar"]
 # SSH settings
 [ssh]
 timeout = 12
+
+[develop]
+debug = false
