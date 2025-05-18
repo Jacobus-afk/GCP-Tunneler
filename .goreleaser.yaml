@@ -17,7 +17,7 @@ before:
 
 builds:
   - main: ./cmd/gcp_tunneler/main.go
-    binary: gcp_tunneler
+    binary: gcp-tunneler
     env:
       - CGO_ENABLED=0
     goos:
