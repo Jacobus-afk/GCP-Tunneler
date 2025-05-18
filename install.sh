@@ -3,7 +3,7 @@
 INSTALL_DIR=""
 TEMP_DIR=/tmp/gcp-tunneler
 trap "rm -rf $TEMP_DIR" EXIT
-SHARE_DIR=$HOME/.local/share/gcp_tunneler
+CONFIG_DIR=$HOME/.config/gcp_tunneler
 
 SUPPORTED_TARGETS="linux-amd64"
 
@@ -13,7 +13,7 @@ error() {
 }
 
 info() {
-  printf "👀 \e[32m$1\e[0m\n"
+  printf "\e[32m$1\e[0m\n"
 }
 
 warn() {
@@ -27,7 +27,7 @@ help() {
   echo "options:"
   echo "-h     Print this help."
   echo "-d     Specify the installation directory. Defaults to $HOME/bin or $HOME/.local/bin"
-  # echo "-t     Specify the share directory. Defaults to $HOME/.local/share/gcp-tunneler"
+  # echo "-c     Specify the config directory. Defaults to $HOME/.config/gcp-tunneler"
   echo
   echo $INSTALL_DIR
 }
@@ -108,16 +108,16 @@ validate_install_directory() {
   fi
 }
 
-validate_share_directory() {
+validate_config_directory() {
 
-    # Validate if the share directory exists
-    if ! mkdir -p "$SHARE_DIR" > /dev/null 2>&1; then
-        error "Cannot write to ${SHARE_DIR}. Please check write permissions or set a different directory and try again"
+    # Validate if the config directory exists
+    if ! mkdir -p "$CONFIG_DIR" > /dev/null 2>&1; then
+        error "Cannot write to ${CONFIG_DIR}. Please check write permissions or set a different directory and try again"
     fi
 
     #check user write permission
-    if [ ! -w "$SHARE_DIR" ]; then
-        error "Cannot write to ${SHARE_DIR}. Please check write permissions or set a different directory and try again"
+    if [ ! -w "$CONFIG_DIR" ]; then
+        error "Cannot write to ${CONFIG_DIR}. Please check write permissions or set a different directory and try again"
     fi
 }
 
@@ -137,14 +137,14 @@ validate_temp_directory() {
 
 install_scripts() {
 
-  validate_share_directory
+  validate_config_directory
 
-  info "🎨 Installing GCP Tunneler scripts in ${SHARE_DIR}\n"
+  info "🎨 Installing GCP Tunneler scripts in ${CONFIG_DIR}\n"
 
-  cp -a /tmp/gcp-tunneler/scripts $SHARE_DIR
+  cp -a /tmp/gcp-tunneler/scripts $CONFIG_DIR
 
   if [ $? -ne 0 ]; then
-    error "Unable to copy scripts to ${SHARE_DIR}"
+    error "Unable to copy scripts to ${CONFIG_DIR}"
   fi
 }
 
@@ -224,7 +224,6 @@ install() {
   install_scripts
 
   info "🚀 Installation complete."
-
 }
 
 validate_dependencies
