@@ -30,69 +30,130 @@ type SSH struct {
 	Timeout int `koanf:"timeout"`
 }
 
+type Develop struct {
+	Debug     bool   `koanf:"debug"`
+	ConfigDir string `koanf:"configdir"`
+}
+
 type ConfigV2 struct {
 	Instances                  Instances `koanf:"instances"`
 	GCPResourceDetailsFilename string    `koanf:"gcp_resource_details_filename"`
 	SSH                        SSH       `koanf:"ssh"`
+	Develop                    Develop   `koanf:"develop"`
+}
+
+func (c *ConfigV2) GetGCPResourceDetailsPath() string {
+	// log.Debug().Msgf("GetGCPResourceDetailsPath elements: %s, %s", c.Develop.ConfigDir, c.GCPResourceDetailsFilename)
+	return filepath.Join(c.Develop.ConfigDir, c.GCPResourceDetailsFilename)
+}
+
+type ScriptConfig struct {
+	SelectProjectScript   string
+	SelectViewScript      string
+	SelectBackendScript   string
+	SelectInstanceScript  string
+	ResourceBuilderScript string
 }
 
 var (
-	config *ConfigV2
-	once   sync.Once
+	config       *ConfigV2
+	once         sync.Once
+	scriptConfig *ScriptConfig
 )
 
-func NewUpdatedConfig() *ConfigV2 {
+func NewUpdatedConfig(configDir string) *ConfigV2 {
 	return &ConfigV2{
 		Instances:                  Instances{Excluded: []string{}, Included: []string{}},
 		GCPResourceDetailsFilename: ResourceDetailsFilename,
 		SSH:                        SSH{Timeout: 12},
+		Develop:                    Develop{Debug: false, ConfigDir: configDir},
 	}
+}
+
+func populateScriptConfig(configDir string) {
+	scriptsDir := filepath.Join(configDir, "./scripts/")
+
+	scriptConfig = &ScriptConfig{
+		SelectProjectScript:   filepath.Join(scriptsDir, "project_select.sh"),
+		SelectViewScript:      filepath.Join(scriptsDir, "view_select.sh"),
+		SelectBackendScript:   filepath.Join(scriptsDir, "backend_select.sh"),
+		SelectInstanceScript:  filepath.Join(scriptsDir, "instance_select.sh"),
+		ResourceBuilderScript: filepath.Join(scriptsDir, "resource_builder.sh"),
+	}
+}
+
+func GetScriptConfig() *ScriptConfig {
+	return scriptConfig
 }
 
 func GetConfig() *ConfigV2 {
 	once.Do(func() {
-		config = NewUpdatedConfig()
+		configDir := getConfigDir()
+		config = NewUpdatedConfig(configDir)
 
 		_ = godotenv.Overload()
 
 		k := koanf.New(".")
 
-		if err := loadConfigFromFile(k); err != nil {
+		if err := loadConfigFromFile(k, configDir); err != nil {
 			log.Warn().Err(err).Msg("issue loading config from file")
 		}
 
 		// this overrides TOML values if they exist
-		envErr := k.Load(
-			env.ProviderWithValue("GCPT_", ".", func(s string, v string) (string, any) {
-				key := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "GCPT_")), "_", ".")
-
-				if strings.Contains(v, ",") {
-					return key, strings.Split(v, ",")
-				}
-				return key, v
-			}),
-			nil,
-		)
-		if envErr != nil {
-			log.Error().Err(envErr).Msg("error loading environment variables")
+		if err := loadConfigFromEnv(k); err != nil {
+			log.Warn().Err(err).Msg("issue loading config from environment variables")
 		}
 
-		// fmt.Println("\nKeys in Koanf after loading:")
+		populateScriptConfig(configDir)
+		// envErr := k.Load(
+		// 	env.ProviderWithValue("GCPT_", ".", func(s string, v string) (string, any) {
+		// 		key := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "GCPT_")), "_", ".")
+		//
+		// 		if strings.Contains(v, ",") {
+		// 			return key, strings.Split(v, ",")
+		// 		}
+		// 		return key, v
+		// 	}),
+		// 	nil,
+		// )
+		// if envErr != nil {
+		// 	log.Error().Err(envErr).Msg("error loading environment variables")
+		// }
+
+		// log.Debug().Msg("\nKeys in Koanf after loading:\n")
 		// for _, key := range k.Keys() {
-		// 	fmt.Printf("%s: %v\n", key, k.Get(key))
+		// 	log.Debug().Msgf("%s: %v\n", key, k.Get(key))
 		// }
 
 		if err := k.Unmarshal("", &config); err != nil {
-			log.Error().Err(err).Msg("error unmarshalling config")
+			log.Warn().Err(err).Msg("error unmarshalling config")
 		}
 
-		// log.Debug().Interface("config", config).Msg("")
+		// log.Debug().Interface("config", config).Msg("loaded configuration")
 	})
 	return config
 }
 
-func loadConfigFromFile(k *koanf.Koanf) error {
-	configPath, cfgPathErr := getConfigFilePath()
+func loadConfigFromEnv(k *koanf.Koanf) error {
+	envErr := k.Load(
+		env.ProviderWithValue("GCPT_", ".", func(s string, v string) (string, any) {
+			key := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "GCPT_")), "_", ".")
+
+			if strings.Contains(v, ",") {
+				return key, strings.Split(v, ",")
+			}
+			return key, v
+		}),
+		nil,
+	)
+	if envErr != nil {
+		return fmt.Errorf("couldn't load environment variables: %w", envErr)
+	}
+	return nil
+}
+
+func loadConfigFromFile(k *koanf.Koanf, configDir string) error {
+	configPath, cfgPathErr := getConfigFilePath(configDir)
 	if cfgPathErr != nil {
 		return cfgPathErr
 	}
@@ -102,13 +163,30 @@ func loadConfigFromFile(k *koanf.Koanf) error {
 	return nil
 }
 
-func getConfigFilePath() (string, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return "", fmt.Errorf("couldn't get user home directory: %w", err)
+func getConfigDir() string {
+	configDir := "./"
+
+	log.Debug().Msgf("getConfigDir ProdBuild: %v", ProdBuild)
+
+	if ProdBuild {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Warn().
+				Msgf("couldn't get user home directory, falling back to current working directory: %v", err)
+			return configDir
+		}
+		configDir = filepath.Join(homeDir, ".config", "gcp-tunneler")
 	}
 
-	configDir := filepath.Join(homeDir, ".config", "gcp-tunneler")
+	if _, err := os.Stat(configDir); os.IsNotExist(err) {
+		log.Warn().
+			Msgf("path %s doesn't exist, falling back to current working directory: %v", configDir, err)
+		return "./"
+	}
+	return configDir
+}
+
+func getConfigFilePath(configDir string) (string, error) {
 	configPath := filepath.Join(configDir, ConfigFilename)
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {

@@ -18,6 +18,8 @@ before:
 builds:
   - main: ./cmd/gcp_tunneler/main.go
     binary: gcp-tunneler
+    tags:
+      - prod
     env:
       - CGO_ENABLED=0
     goos:

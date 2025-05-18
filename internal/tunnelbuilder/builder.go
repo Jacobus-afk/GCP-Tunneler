@@ -143,9 +143,10 @@ func buildGCloudCommand(instance Instance, freePort int) (gcloudCMD string) {
 
 func getTunnelDetails(resourceName string) Instance {
 	var instance Instance
-	configPath := config.GetConfig().GCPResourceDetailsFilename
+	configPath := config.GetConfig().GetGCPResourceDetailsPath()
+	resourceBuilderScript := config.GetScriptConfig().ResourceBuilderScript
 	rawJSON := utils.CommandCombinedOutput(
-		"./scripts/resource_builder.sh",
+		resourceBuilderScript,
 		configPath,
 		resourceName,
 	)
