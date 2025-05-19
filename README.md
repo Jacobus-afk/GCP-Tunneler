@@ -39,5 +39,5 @@ GCPT_INSTANCES_EXCLUDED=foo,bar GCPT_SSH_TIMEOUT=10 gcp-tunneler
 
 ### Configuration file
 
-You can create a config file at `~/.config/gcp-tunneler/config.toml`. See [here](./config.toml.example) for an
+You can create a config file in `~/.config/gcp-tunneler/config.toml`. See [here](./config.toml.example) for an
 example (remember to rename the file to `config.toml`)
