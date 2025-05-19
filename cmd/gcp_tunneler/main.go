@@ -23,6 +23,12 @@ func main() {
 	flag.Parse()
 	envCfg := config.GetConfig()
 
+	if envCfg.Develop.Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	log.Debug().Msg("Debugging: enabled")
+
 	app := &run.Application{
 		Config: &run.RealConfiguration{},
 	}
@@ -34,5 +40,6 @@ func main() {
 
 func configureLogger() {
 	// zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 }
