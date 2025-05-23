@@ -26,6 +26,8 @@ builds:
       - linux
     goarch:
       - amd64
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser
 
 archives:
   - formats: [tar.gz]
@@ -51,6 +53,13 @@ changelog:
       - "^test:"
 
 release:
+  header: |
+    ## Installation
+
+    ### Linux
+
+    `curl -s -H "Accept:application/vnd.github.v3.raw" https://api.github.com/repos/Jacobus-afk/gcp-tunneler/contents/install.sh | bash -s`
+
   footer: >-
 
     ---
