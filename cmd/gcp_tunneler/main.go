@@ -52,8 +52,8 @@ func main() {
 	}
 }
 
-func printVersion()  {
-	os.Stdout.WriteString(version + "\n")
+func printVersion() {
+	_, _ = os.Stdout.WriteString(version + "\n")
 }
 
 func configureLogger() {
