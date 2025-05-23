@@ -58,7 +58,9 @@ release:
 
     ### Linux
 
-    `curl -s -H "Accept:application/vnd.github.v3.raw" https://api.github.com/repos/Jacobus-afk/gcp-tunneler/contents/install.sh | bash -s`
+    ```shell
+    curl -s -H "Accept:application/vnd.github.v3.raw" https://api.github.com/repos/Jacobus-afk/gcp-tunneler/contents/install.sh | bash -s
+    ```
 
   footer: >-
 
