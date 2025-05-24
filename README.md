@@ -51,3 +51,4 @@ example (remember to rename the file to `config.toml`)
 > [ssh]
 > username = "atticus"
 > ```
+
