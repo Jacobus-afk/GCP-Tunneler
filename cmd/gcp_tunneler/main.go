@@ -17,7 +17,6 @@ var version = "undefined"
 
 func main() {
 	configureLogger()
-	// tos
 	// TODO: add flags for other configurable values?
 	reloadCfgFlag := flag.Bool(
 		"reload-config",
