@@ -40,8 +40,8 @@ jobs:
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx -p @semantic-release/exec semantic-release
-          
+        run: npx -p conventional-changelog-conventionalcommits semantic-release
+
       # - name: Run GoReleaser
       #   uses: goreleaser/goreleaser-action@v6
       #   with:
