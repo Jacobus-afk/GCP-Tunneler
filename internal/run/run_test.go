@@ -1,9 +1,8 @@
-package run_test
+package run
 
 import (
 	"gcp-tunneler/internal/config"
 	gcptunneler "gcp-tunneler/internal/gcp_api"
-	"gcp-tunneler/internal/run"
 	"os"
 	"testing"
 )
@@ -14,7 +13,8 @@ type TestDoubleConfiguration struct {
 	WriteFileFn            func(string, []byte, os.FileMode) error
 }
 
-var _ run.Configuration = (*TestDoubleConfiguration)(nil)
+// verify test interface is still the same as actual one
+var _ Configuration = (*TestDoubleConfiguration)(nil)
 
 func (t *TestDoubleConfiguration) CheckIfFileExists(path string) bool {
 	return t.CheckIfFileExistsFn(path)
@@ -45,11 +45,11 @@ func TestProgramShouldntWriteToFile(t *testing.T) {
 		},
 	}
 
-	app := &run.Application{
+	app := &Application{
 		Config: mockConfig,
 	}
 
-	err := app.WriteResourceDetailsToFile(reloadCfgFlag, &envCfg)
+	err := app.writeResourceDetailsToFile(reloadCfgFlag, &envCfg)
 
 	if writeFileCalled || err != nil {
 		t.Errorf("loadConfiguration() shouldn't write to file: %v", err)

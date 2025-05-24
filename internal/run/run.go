@@ -103,7 +103,7 @@ func populateGCPResources() []gcptunneler.ProjectData {
 }
 
 func (app *Application) Run(reloadCfgFlag bool, envCfg *config.ConfigV2) error {
-	cfgErr := app.WriteResourceDetailsToFile(reloadCfgFlag, envCfg)
+	cfgErr := app.writeResourceDetailsToFile(reloadCfgFlag, envCfg)
 	if cfgErr != nil {
 		return cfgErr
 	}
