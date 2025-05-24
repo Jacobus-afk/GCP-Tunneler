@@ -51,10 +51,10 @@ plugins:
           - type: chore
             section: "🔧 Chores"
             hidden: true  # Include in changelog but hide by default
-  - "@semantic-release/github"
+  # - "@semantic-release/github"
   # - "@semantic-release/changelog"
   # - "@semantic-release/git"
-  # - - "@semantic-release/exec"
-  #   - publishCmd: |
-  #       echo "${nextRelease.notes}" > /tmp/release-notes.md
-  #       goreleaser release --release-notes /tmp/release-notes.md --clean
+  - - "@semantic-release/exec"
+    - publishCmd: |
+        echo "${nextRelease.notes}" > /tmp/release-notes.md
+        goreleaser release --release-notes /tmp/release-notes.md --clean
