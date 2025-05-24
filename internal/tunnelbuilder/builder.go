@@ -103,7 +103,7 @@ func (b *Builder) createTunnels(instanceList []Instance, jobs chan [2]string) {
 			return
 		}
 
-		currentUsername := b.getCurrentUser()
+		currentUsername := b.getCurrentUserName()
 
 		gcloudCMD := buildGCloudCommand(instance, freePort)
 
@@ -113,7 +113,7 @@ func (b *Builder) createTunnels(instanceList []Instance, jobs chan [2]string) {
 	}
 }
 
-func (b *Builder) getCurrentUser() string {
+func (b *Builder) getCurrentUserName() string {
 	currentUserName := config.GetConfig().SSH.UserName
 	if currentUserName == "" {
 		currentUser, err := user.Current()
