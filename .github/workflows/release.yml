@@ -3,6 +3,8 @@ on:
     # run only against tags
     tags:
       - "*"
+  release:
+    types: [published]
 
 permissions:
   contents: write
