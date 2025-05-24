@@ -1,10 +1,11 @@
+name: build(goreleaser)
 on:
   push:
     # run only against tags
     tags:
       - "*"
   release:
-    types: [published, created]
+    types: [released]
 
 permissions:
   contents: write
