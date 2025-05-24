@@ -2,7 +2,7 @@ preset: angular
 plugins:
   # Analyze commits to determine release type
   - - "@semantic-release/commit-analyzer"
-    - preset: conventionalcommits
+    - preset: angular
       releaseRules:
         # Additional rules for version bumps
         - type: docs
@@ -27,7 +27,7 @@ plugins:
 
   # Generate release notes
   - - "@semantic-release/release-notes-generator"
-    - preset: conventionalcommits
+    - preset: angular
       presetConfig:
         types:
           - type: feat
