@@ -1,7 +1,8 @@
 preset: angular
 plugins:
-  - "@semantic-release/commit-analyzer":
-      preset: conventionalcommits
+  # Analyze commits to determine release type
+  - - "@semantic-release/commit-analyzer"
+    - preset: conventionalcommits
       releaseRules:
         # Additional rules for version bumps
         - type: docs
@@ -12,7 +13,7 @@ plugins:
         - type: refactor
           scope: core
           release: patch
-          # These don't trigger releases but appear in changelog
+        # These don't trigger releases but appear in changelog
         - type: docs
           release: false
         - type: style
@@ -23,8 +24,10 @@ plugins:
           release: false
         - type: chore
           release: false
-  - "@semantic-release/release-notes-generator":
-      preset: conventionalcommits
+
+  # Generate release notes
+  - - "@semantic-release/release-notes-generator"
+    - preset: conventionalcommits
       presetConfig:
         types:
           - type: feat
