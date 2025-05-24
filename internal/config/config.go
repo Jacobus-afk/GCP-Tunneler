@@ -106,20 +106,6 @@ func GetConfig() *ConfigV2 {
 		}
 
 		populateScriptConfig(configDir)
-		// envErr := k.Load(
-		// 	env.ProviderWithValue("GCPT_", ".", func(s string, v string) (string, any) {
-		// 		key := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "GCPT_")), "_", ".")
-		//
-		// 		if strings.Contains(v, ",") {
-		// 			return key, strings.Split(v, ",")
-		// 		}
-		// 		return key, v
-		// 	}),
-		// 	nil,
-		// )
-		// if envErr != nil {
-		// 	log.Error().Err(envErr).Msg("error loading environment variables")
-		// }
 
 		// log.Debug().Msg("\nKeys in Koanf after loading:\n")
 		// for _, key := range k.Keys() {
