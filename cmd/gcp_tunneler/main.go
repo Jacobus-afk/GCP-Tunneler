@@ -3,7 +3,10 @@ package main
 import (
 	"flag"
 	"gcp-tunneler/internal/config"
+	"gcp-tunneler/internal/menu"
 	"gcp-tunneler/internal/run"
+	"gcp-tunneler/internal/tunnelbuilder"
+	"gcp-tunneler/internal/utils"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -44,7 +47,10 @@ func main() {
 	log.Debug().Msg("Debugging: enabled")
 
 	app := &run.Application{
-		Config: &run.RealConfiguration{},
+		Config:         &run.RealConfiguration{},
+		TunnelBuilder:  &tunnelbuilder.Builder{},
+		MenuHandler:    &menu.Menu{},
+		SessionHandler: &utils.Session{},
 	}
 	err := app.Run(*reloadCfgFlag, envCfg)
 	if err != nil {
