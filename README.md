@@ -35,9 +35,19 @@ GCPT_INSTANCES_EXCLUDED=foo,bar GCPT_SSH_TIMEOUT=10 gcp-tunneler
 | GCPT_INSTANCES_EXCLUDED | comma separated list | | **Non functioning** |
 | GCPT_INSTANCES_INCLUDED | comma separated list | | When populating the `gcp_resource_json` file, only add instance if the name includes one of the filters specified |
 | GCPT_SSH_TIMEOUT |  | 12 | Time in seconds allowed to establish an SSH connection |
+| GCPT_SSH_USERNAME |  |  | To use a name other than the default OS username to establish an SSH session |
 | GCPT_DEVELOP_DEBUG |  |  | Enable debug logging |
 
 ### Configuration file
 
 You can create a config file in `~/.config/gcp-tunneler/config.toml`. See [here](./config.toml.example) for an
 example (remember to rename the file to `config.toml`)
+
+> [!NOTE]
+> The configuration options under [Environment variables](#environment-variables) are analogous with the
+> entries in `config.toml`. To change, for example, the default ssh host user name (GCPT_SSH_USERNAME):
+>
+> ```toml
+> [ssh]
+> username = "atticus"
+> ```
