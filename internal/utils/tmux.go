@@ -18,6 +18,27 @@ type SSHConnection struct {
 	Username  string
 }
 
+type Session struct{}
+
+func (s *Session) SwitchToCreatedSession(sessionName string) error {
+	binary, lookErr := exec.LookPath("tmux")
+	if lookErr != nil {
+		return fmt.Errorf("could not find path to tmux: %w", lookErr)
+	}
+
+	args := []string{"tmux", "switch", "-t", sessionName}
+
+	env := os.Environ()
+
+	execErr := syscall.Exec(binary, args, env)
+	if execErr != nil {
+		return fmt.Errorf("could not run tmux switch: %w", execErr)
+	}
+
+	return nil
+}
+
+
 func CreateTMUXSSHSession(sshConnection SSHConnection, sessionName string) error {
 	if !sshConnection.Connected {
 		return fmt.Errorf("ssh not connected for %s", sshConnection.Port)
@@ -114,20 +135,3 @@ func WaitForSSHSession(currentUser string, freePort string) bool {
 	}
 }
 
-func SwitchToCreatedSession(sessionName string) error  {
-	binary, lookErr := exec.LookPath("tmux")
-	if lookErr != nil {
-		return fmt.Errorf("could not find path to tmux: %w", lookErr)
-	}
-
-	args := []string{"tmux", "switch", "-t", sessionName}
-
-	env := os.Environ()
-
-	execErr := syscall.Exec(binary, args, env)
-	if execErr != nil {
-		return fmt.Errorf("could not run tmux switch: %w", execErr)
-	}
-	
-	return nil
-}
