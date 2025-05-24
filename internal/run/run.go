@@ -37,6 +37,7 @@ func (r *RealConfiguration) WriteFile(name string, data []byte, perm os.FileMode
 
 type Application struct {
 	Config Configuration
+	TunnelBuilder tunnelbuilder.Builder
 }
 
 func (app *Application) WriteResourceDetailsToFile(reloadCfgFlag bool, envCfg *config.ConfigV2) error {
@@ -68,8 +69,8 @@ func selectResources() string {
 	return resourceNames
 }
 
-func connectToResources(resourceNames string) (string, error) {
-	sessionName, err := tunnelbuilder.BuildTunnelAndSSH(resourceNames)
+func (app *Application) connectToResources(resourceNames string) (string, error) {
+	sessionName, err := app.TunnelBuilder.BuildTunnelAndSSH(resourceNames)
 	if err != nil {
 		return "", fmt.Errorf("error building tunnels: %w", err)
 	}
@@ -108,7 +109,7 @@ func (app *Application) Run(reloadCfgFlag bool, envCfg *config.ConfigV2) error {
 	}
 
 	resourceNames := selectResources()
-	sessionName, sessErr := connectToResources(resourceNames)
+	sessionName, sessErr := app.connectToResources(resourceNames)
 	if sessErr != nil {
 		return sessErr
 	}

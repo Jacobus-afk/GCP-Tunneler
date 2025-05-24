@@ -12,6 +12,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type Builder struct {
+
+}
+
 type Instance struct {
 	Project       string `json:"project"`
 	Name          string `json:"name"`
@@ -33,7 +37,7 @@ func goWorker(jobs chan [2]string, results chan utils.SSHConnection) {
 	}
 }
 
-func BuildTunnelAndSSH(resourcesInput string) (string, error) {
+func (b *Builder) BuildTunnelAndSSH(resourcesInput string) (string, error) {
 	resourceList := strings.Split(resourcesInput, "\n")
 
 	instanceList, possibleSessionNames := buildTunnelCommands(resourceList)
@@ -43,7 +47,7 @@ func BuildTunnelAndSSH(resourcesInput string) (string, error) {
 		return "", fmt.Errorf("failed to get session name: %w", err)
 	}
 
-	connections := createConcurrentTunnelConnections(instanceList)
+	connections := b.createConcurrentTunnelConnections(instanceList)
 
 	if err := setupTMUXEnvironment(connections, sessionName); err != nil {
 		return "", fmt.Errorf("failed to setup TMUX Environment: %w", err)
@@ -52,7 +56,7 @@ func BuildTunnelAndSSH(resourcesInput string) (string, error) {
 	return sessionName, nil
 }
 
-func createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConnection {
+func (b *Builder) createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConnection {
 	numJobs := len(instanceList)
 	jobs := make(chan [2]string, numJobs)
 	results := make(chan utils.SSHConnection, numJobs)
@@ -61,7 +65,7 @@ func createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConne
 		go goWorker(jobs, results)
 	}
 
-	createTunnels(instanceList, jobs)
+	b.createTunnels(instanceList, jobs)
 
 	close(jobs)
 
@@ -91,7 +95,7 @@ func setupTMUXEnvironment(
 	return nil
 }
 
-func createTunnels(instanceList []Instance, jobs chan [2]string) {
+func (b *Builder) createTunnels(instanceList []Instance, jobs chan [2]string) {
 	for _, instance := range instanceList {
 		log.Info().Interface("instance", instance).Msg("")
 
