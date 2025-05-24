@@ -12,7 +12,7 @@ plugins:
         - type: refactor
           scope: core
           release: patch
-        # These don't trigger releases but appear in changelog
+          # These don't trigger releases but appear in changelog
         - type: docs
           release: false
         - type: style
