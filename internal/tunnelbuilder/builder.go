@@ -12,6 +12,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type Builder struct{}
+
 type Instance struct {
 	Project       string `json:"project"`
 	Name          string `json:"name"`
@@ -33,7 +35,7 @@ func goWorker(jobs chan [2]string, results chan utils.SSHConnection) {
 	}
 }
 
-func BuildTunnelAndSSH(resourcesInput string) (string, error) {
+func (b *Builder) BuildTunnelAndSSH(resourcesInput string) (string, error) {
 	resourceList := strings.Split(resourcesInput, "\n")
 
 	instanceList, possibleSessionNames := buildTunnelCommands(resourceList)
@@ -43,7 +45,7 @@ func BuildTunnelAndSSH(resourcesInput string) (string, error) {
 		return "", fmt.Errorf("failed to get session name: %w", err)
 	}
 
-	connections := createConcurrentTunnelConnections(instanceList)
+	connections := b.createConcurrentTunnelConnections(instanceList)
 
 	if err := setupTMUXEnvironment(connections, sessionName); err != nil {
 		return "", fmt.Errorf("failed to setup TMUX Environment: %w", err)
@@ -52,7 +54,7 @@ func BuildTunnelAndSSH(resourcesInput string) (string, error) {
 	return sessionName, nil
 }
 
-func createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConnection {
+func (b *Builder) createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConnection {
 	numJobs := len(instanceList)
 	jobs := make(chan [2]string, numJobs)
 	results := make(chan utils.SSHConnection, numJobs)
@@ -61,7 +63,7 @@ func createConcurrentTunnelConnections(instanceList []Instance) []utils.SSHConne
 		go goWorker(jobs, results)
 	}
 
-	createTunnels(instanceList, jobs)
+	b.createTunnels(instanceList, jobs)
 
 	close(jobs)
 
@@ -91,7 +93,7 @@ func setupTMUXEnvironment(
 	return nil
 }
 
-func createTunnels(instanceList []Instance, jobs chan [2]string) {
+func (b *Builder) createTunnels(instanceList []Instance, jobs chan [2]string) {
 	for _, instance := range instanceList {
 		log.Info().Interface("instance", instance).Msg("")
 
@@ -101,17 +103,27 @@ func createTunnels(instanceList []Instance, jobs chan [2]string) {
 			return
 		}
 
-		currentUser, err := user.Current()
-		if err != nil {
-			log.Error().Err(err).Msg("couldn't get current user")
-		}
+		currentUsername := b.getCurrentUser()
 
 		gcloudCMD := buildGCloudCommand(instance, freePort)
 
 		utils.CreateTMUXTunnelSession(gcloudCMD, instance.Name)
 
-		jobs <- [2]string{currentUser.Username, strconv.Itoa(freePort)}
+		jobs <- [2]string{currentUsername, strconv.Itoa(freePort)}
 	}
+}
+
+func (b *Builder) getCurrentUser() string {
+	currentUserName := config.GetConfig().SSH.UserName
+	if currentUserName == "" {
+		currentUser, err := user.Current()
+		if err != nil {
+			log.Error().Err(err).Msg("couldn't get current user")
+		} else {
+			currentUserName = currentUser.Username
+		}
+	}
+	return currentUserName
 }
 
 func buildTunnelCommands(resourceList []string) ([]Instance, map[string]bool) {

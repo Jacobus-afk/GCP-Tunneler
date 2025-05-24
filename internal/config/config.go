@@ -28,6 +28,7 @@ type Instances struct {
 
 type SSH struct {
 	Timeout int `koanf:"timeout"`
+	UserName string `koanf:"username"`
 }
 
 type Develop struct {
