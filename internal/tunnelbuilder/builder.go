@@ -12,9 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Builder struct {
-
-}
+type Builder struct{}
 
 type Instance struct {
 	Project       string `json:"project"`
@@ -105,17 +103,27 @@ func (b *Builder) createTunnels(instanceList []Instance, jobs chan [2]string) {
 			return
 		}
 
-		currentUser, err := user.Current()
-		if err != nil {
-			log.Error().Err(err).Msg("couldn't get current user")
-		}
+		currentUsername := b.getCurrentUser()
 
 		gcloudCMD := buildGCloudCommand(instance, freePort)
 
 		utils.CreateTMUXTunnelSession(gcloudCMD, instance.Name)
 
-		jobs <- [2]string{currentUser.Username, strconv.Itoa(freePort)}
+		jobs <- [2]string{currentUsername, strconv.Itoa(freePort)}
 	}
+}
+
+func (b *Builder) getCurrentUser() string {
+	currentUserName := config.GetConfig().SSH.UserName
+	if currentUserName == "" {
+		currentUser, err := user.Current()
+		if err != nil {
+			log.Error().Err(err).Msg("couldn't get current user")
+		} else {
+			currentUserName = currentUser.Username
+		}
+	}
+	return currentUserName
 }
 
 func buildTunnelCommands(resourceList []string) ([]Instance, map[string]bool) {
