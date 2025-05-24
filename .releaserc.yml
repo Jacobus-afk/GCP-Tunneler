@@ -27,7 +27,7 @@ plugins:
 
   # Generate release notes
   - - "@semantic-release/release-notes-generator"
-    - preset: angular
+    - preset: conventionalcommits
       presetConfig:
         types:
           - type: feat
