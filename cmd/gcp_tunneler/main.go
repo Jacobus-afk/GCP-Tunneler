@@ -44,6 +44,7 @@ func main() {
 	}
 
 	log.Debug().Msg("Debugging: enabled")
+	log.Info().Msg("poep")
 
 	app := &run.Application{
 		Config:         &run.RealConfiguration{},
