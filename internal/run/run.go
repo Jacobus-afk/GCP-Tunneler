@@ -17,6 +17,7 @@ type Configuration interface {
 	CheckIfFileExists(path string) bool
 	PopulateGCPResources() []gcptunneler.ProjectData
 	WriteFile(name string, data []byte, perm os.FileMode) error
+	MarshalIndent(v any, prefix string, indent string) ([]byte, error)
 }
 
 type MenuHandler interface {
@@ -60,6 +61,10 @@ func (r *RealConfiguration) PopulateGCPResources() []gcptunneler.ProjectData {
 	// log.Println(string(jsonData))
 
 	return projectDataList
+}
+
+func (r *RealConfiguration) MarshalIndent(v any, prefix string, indent string) ([]byte, error) {
+	return json.MarshalIndent(v, "", "  ")
 }
 
 func (r *RealConfiguration) WriteFile(name string, data []byte, perm os.FileMode) error {
@@ -106,7 +111,7 @@ func (app *Application) writeResourceDetailsToFile(
 			Str("config_file", gcpResourceDetailsPath).
 			Msg("writing GCP resource details to file...")
 
-		jsonData, jsonErr := json.MarshalIndent(projectDataList, "", "  ")
+		jsonData, jsonErr := app.Config.MarshalIndent(projectDataList, "", "  ")
 		if jsonErr != nil {
 			return fmt.Errorf("error marshaling to JSON: %w", jsonErr)
 		}
