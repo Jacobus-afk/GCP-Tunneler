@@ -11,14 +11,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type errorString struct {
-	s string
-}
-
-func (e *errorString) Error() string {
-	return e.s
-}
-
 type TestDoubleConfiguration struct {
 	CheckIfFileExistsFn    func(string) bool
 	PopulateGCPResourcesFn func() []gcptunneler.ProjectData
@@ -129,30 +121,3 @@ func TestWriteResourceDetailsToFile(t *testing.T) {
 	}
 }
 
-// func TestProgramShouldntWriteToFile(t *testing.T) {
-// 	writeFileCalled := false
-// 	envCfg := config.ConfigV2{GCPResourceDetailsFilename: "test.json"}
-// 	reloadCfgFlag := false
-// 	mockConfig := &TestDoubleConfiguration{
-// 		CheckIfFileExistsFn: func(string) bool {
-// 			return true
-// 		},
-// 		PopulateGCPResourcesFn: func() []gcptunneler.ProjectData {
-// 			return []gcptunneler.ProjectData{{Project: "Poep"}}
-// 		},
-// 		WriteFileFn: func(string, []byte, os.FileMode) error {
-// 			writeFileCalled = true
-// 			return nil
-// 		},
-// 	}
-//
-// 	app := &Application{
-// 		Config: mockConfig,
-// 	}
-//
-// 	err := app.writeResourceDetailsToFile(reloadCfgFlag, &envCfg)
-//
-// 	if writeFileCalled || err != nil {
-// 		t.Errorf("loadConfiguration() shouldn't write to file: %v", err)
-// 	}
-// }
