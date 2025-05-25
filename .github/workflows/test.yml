@@ -8,18 +8,14 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
-    - id: go-cache-paths
-      run: |
-        echo "::set-output name=go-build::$(go env GOCACHE)"
-        echo "::set-output name=go-mod::$(go env GOMODCACHE)"
-        
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: stable
+        # go-version: stable
+        go-version-file: ./go.mod
         cache: true
 
     - name: Get dependencies
@@ -27,28 +23,16 @@ jobs:
 
     - name: Verify dependencies
       run: go mod verify
-      
-    # Cache go build cache, used to speedup go test
-    - name: Go Build Cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.go-cache-paths.outputs.go-build }}
-        key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
-    
-    # Cache go mod cache, used to speedup builds
-    - name: Go Mod Cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.go-cache-paths.outputs.go-mod }}
-        key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
         
     # - name: Set up test environment
     #   run: |
     #     # Create a dummy .env file with test values
     #     echo "GCPT_SSH_TIMEOUT=12" > .env
+    - name: Build
+      run: go build ./...
 
     - name: Run tests
-      run: go test -v ./...
+      run: go test ./...
 
     - name: Run linter
       uses: golangci/golangci-lint-action@v8
