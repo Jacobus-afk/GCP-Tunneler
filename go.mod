@@ -11,7 +11,7 @@ require (
 	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.2.1
 	github.com/rs/zerolog v1.34.0
-	google.golang.org/api v0.238.0
+	google.golang.org/api v0.239.0
 )
 
 require (
