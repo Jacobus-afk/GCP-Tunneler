@@ -1,3 +1,4 @@
+// Package utils give user a default session name and option to rename it
 package utils
 
 import (
@@ -14,8 +15,12 @@ func PromptForSessionName(sessionNames map[string]bool) (string, error) {
 	uniqueNames := []string{}
 
 	for key := range sessionNames {
+		if key == "" {
+			key = "_"
+		}
 		uniqueNames = append(uniqueNames, key)
 	}
+
 	defaultSelect := uniqueNames[0]
 	inputString := strings.Join(uniqueNames, "\n")
 
@@ -26,7 +31,7 @@ func PromptForSessionName(sessionNames map[string]bool) (string, error) {
 		// "--layout=reverse",
 		"--prompt", "Session name: ",
 		"--header", "Enter to select, type to create new",
-		"--print-query",            // Print user's query if nothing matches
+		"--print-query", // Print user's query if nothing matches
 		// "--select-1",               // Auto-select if only one match
 		"--query", defaultSelect) // Pre-populate with suggestion
 
