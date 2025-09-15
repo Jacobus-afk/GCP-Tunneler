@@ -33,17 +33,21 @@ func PromptForSessionName(sessionNames map[string]bool) (string, error) {
 		"--header", "Enter to select, type to create new",
 		"--print-query", // Print user's query if nothing matches
 		// "--select-1",               // Auto-select if only one match
-		"--query", defaultSelect) // Pre-populate with suggestion
+		"--query", defaultSelect, // Pre-populate with suggestion
+	)
 
 	cmd.Stdin = strings.NewReader(inputString)
 	cmd.Stderr = os.Stderr
 
 	output, err := cmd.Output()
 	if err != nil {
-		if _, ok := err.(*exec.ExitError); ok {
-			return "", fmt.Errorf("session name selection canceled: %w", err)
+		if exitError, ok := err.(*exec.ExitError); ok {
+			if exitError.ExitCode() != 1 {
+				return "", fmt.Errorf("session name selection canceled: %w", err)
+			}
+		} else {
+			return "", fmt.Errorf("failed to run fzf: %w", err)
 		}
-		return "", fmt.Errorf("failed to run fzf: %w", err)
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
