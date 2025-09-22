@@ -17,7 +17,7 @@ tool (
 )
 
 require (
-	cloud.google.com/go/compute v1.46.0
+	cloud.google.com/go/compute v1.47.0
 	cloud.google.com/go/resourcemanager v1.10.6
 	github.com/joho/godotenv v1.5.1
 	github.com/knadh/koanf/parsers/toml v0.1.0
